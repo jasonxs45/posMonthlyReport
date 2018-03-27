@@ -47,7 +47,10 @@
     <div class="content">
       <p class="tip">营业额单位：元</p>
       <div class="fktable" ref="fktable">
-        <div class="special-th"  v-if="fixThead&&fixColumn">序号</div>
+        <div class="special-th"  v-if="fixThead&&fixColumn">
+          <div class="fkcell fkcell1">序号</div>
+          <div class="fkcell fkcell2">租户</div>
+        </div>
         <div class="table-wrapper extra"  ref="extraThead" :class="fixThead?'fixed':''">
           <div class="thead">
             <table class="mytable">
@@ -422,8 +425,8 @@ export default {
             this.tableData[i].MonthCompare = this.tableData[i].MonthGrossSales
             ? (100 * (this.tableData[i].GrossSales - this.tableData[i].MonthGrossSales) / this.tableData[i].MonthGrossSales).toFixed(0) + '%'
             : '--'
-            this.tableData[i].YearMonthCompare = this.tableData[i].YearMonthGrossSales
-            ? (100 * (this.tableData[i].GrossSales - this.tableData[i].YearMonthGrossSales) / this.tableData[i].YearMonthGrossSales).toFixed(0) + '%'
+            this.tableData[i].YearMonthCompare = this.tableData[i].YearGrossSales
+            ? (100 * (this.tableData[i].GrossSales - this.tableData[i].YearGrossSales) / this.tableData[i].YearGrossSales).toFixed(0) + '%'
             : '--'
           }
         }
@@ -547,10 +550,10 @@ export default {
     position: relative;
     overflow: hidden;
     .special-th{
-      width: 50px;
+      width: 129px;
       position: fixed;
       z-index: 200;
-      font-size: .5rem;
+      font-size: 0;
       top: 0;
       left: 0;
       background: #f5f5f5;
@@ -560,6 +563,21 @@ export default {
       height:1.5rem;
       box-shadow: 0 -2px 2px 0 rgba(0,0,0,.3);
       border-bottom:1px solid #ddd;
+      .fkcell{
+        font-size: .5rem;
+        display: inline-block;
+        padding: 0 .2rem;
+        text-align: left;
+        &.fkcell1{
+          width: 50px;
+          margin-left: -.2rem;
+          border-right:1px solid #ddd;
+        }
+        &.fkcell2{
+          width: 79px;
+          margin-right: -.2rem;
+        }
+      }
     }
     .table-wrapper{
       width: 100%;
@@ -591,7 +609,7 @@ export default {
       }
       &.fixed{
         position: absolute;
-        width: 50px;
+        width: 130px;
         left: 0;
         top: 0;
         overflow: hidden;
