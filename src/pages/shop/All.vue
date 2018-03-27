@@ -119,8 +119,8 @@
                   <td><div>{{item.Area|thousand}}</div></td>
                   <td><div>{{item.GrossSales|thousand}}</div></td>
                   <td><div>{{item.GroundEffect|thousand}}</div></td>
-                  <td><div>{{item.GrossSales === 0 ? 0 : item.MonthGrossSales === 0 ? 100 : ((100*item.GrossSales/item.MonthGrossSales).toFixed(0))}}%</div></td>
-                  <td><div>{{item.GrossSales === 0 ? 0 : item.MonthGrossSales === 0 ? 100 : ((100*item.GrossSales/item.MonthGrossSales).toFixed(0))}}%</div></td>
+                  <td><div>{{item.MonthCompare}}</div></td>
+                  <td><div>{{item.YearMonthCompare}}</div></td>
                 </tr>
               </tbody>
             </table>
@@ -196,8 +196,8 @@
                 <td><div>{{item.Area|thousand}}</div></td>
                 <td><div>{{item.GrossSales|thousand}}</div></td>
                 <td><div>{{item.GroundEffect|thousand}}</div></td>
-                <td><div>{{item.GrossSales === 0 ? 0 : item.MonthGrossSales === 0 ? 100 : ((100*item.GrossSales/item.MonthGrossSales).toFixed(0))}}%</div></td>
-                <td><div>{{item.GrossSales === 0 ? 0 : item.YearGrossSales === 0 ? 100 : ((100*item.GrossSales/item.YearGrossSales).toFixed(0))}}%</div></td>
+                <td><div>{{item.MonthCompare}}</div></td>
+                <td><div>{{item.YearMonthCompare}}</div></td>
               </tr>
             </tbody>
           </table>
@@ -272,8 +272,8 @@
                 <td><div>{{item.Area|thousand}}</div></td>
                 <td><div>{{item.GrossSales|thousand}}</div></td>
                 <td><div>{{item.GroundEffect|thousand}}</div></td>
-                <td><div>{{item.GrossSales === 0 ? 0 : item.MonthGrossSales === 0 ? 100 : ((100*item.GrossSales/item.MonthGrossSales).toFixed(0))}}%</div></td>
-                <td><div>{{item.GrossSales === 0 ? 0 : item.MonthGrossSales === 0 ? 100 : ((100*item.GrossSales/item.MonthGrossSales).toFixed(0))}}%</div></td>
+                <td><div>{{item.MonthCompare}}</div></td>
+                <td><div>{{item.YearMonthCompare}}</div></td>
               </tr>
             </tbody>
           </table>
@@ -320,26 +320,22 @@ export default {
     usedTableData () {
       let realData = []
       if (this.tableData) {
-        if (this.selectCategory && this.selectLocation) {
-          for (let i = 0; i < this.tableData.length; i++) {
+        for (let i = 0; i < this.tableData.length; i++) {
+          if (this.selectCategory && this.selectLocation) {
             if (this.tableData[i].Location === this.selectLocation && this.tableData[i].ShopCategory === this.selectCategory) {
               realData.push(this.tableData[i])
             }
-          }
-        } else if (this.selectCategory && !this.selectLocation) {
-          for (let i = 0; i < this.tableData.length; i++) {
+          } else if (this.selectCategory && !this.selectLocation) {
             if (this.tableData[i].ShopCategory === this.selectCategory) {
               realData.push(this.tableData[i])
             }
-          }
-        } else if (this.selectLocation && !this.selectCategory) {
-          for (let i = 0; i < this.tableData.length; i++) {
+          } else if (this.selectLocation && !this.selectCategory) {
             if (this.tableData[i].Location === this.selectLocation) {
               realData.push(this.tableData[i])
             }
+          } else {
+            realData = this.tableData
           }
-        } else {
-          realData = this.tableData
         }
       }
       return realData
@@ -368,6 +364,7 @@ export default {
       this.totalQueries()
     },
     withQueryEnter () {
+      this.totalQueries()
       this.activeMallIndex = this.$route.params.activeMallIndex
       this.selectedMonth = this.$route.params.endMonth.replace('/', '-')
       if (this.$route.params.type) {
@@ -376,7 +373,6 @@ export default {
       if (this.$route.params.location) {
         this.selectLocation = this.$route.params.location
       }
-      this.totalQueries()
     },
     totalQueries () {
       // 清空排序
@@ -421,6 +417,15 @@ export default {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
           this.tableData = res.data.Data
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.tableData[i].monthdate = Math.random().toString(36).substr(2)
+            this.tableData[i].MonthCompare = this.tableData[i].MonthGrossSales
+            ? (100 * (this.tableData[i].GrossSales - this.tableData[i].MonthGrossSales) / this.tableData[i].MonthGrossSales).toFixed(0) + '%'
+            : '--'
+            this.tableData[i].YearMonthCompare = this.tableData[i].YearMonthGrossSales
+            ? (100 * (this.tableData[i].GrossSales - this.tableData[i].YearMonthGrossSales) / this.tableData[i].YearMonthGrossSales).toFixed(0) + '%'
+            : '--'
+          }
         }
       }).catch((err) => {
         console.log(err)

@@ -150,8 +150,8 @@ export default {
         }
         prevYear = {
           grosssales: grosssales.year2 ? (100 * (grosssales.year1 - grosssales.year2) / grosssales.year2).toFixed(0) + '%' : '--',
-          knum: knum.year2 ? (100 * (knum.year1 - knum.year2) / knum.year1).toFixed(0) + '%' : '--',
-          cnum: cnum.year2 ? (100 * (cnum.year1 - cnum.year2) / cnum.year1).toFixed(0) + '%' : '--'
+          knum: knum.year2 ? (100 * (knum.year1 - knum.year2) / knum.year2).toFixed(0) + '%' : '--',
+          cnum: cnum.year2 ? (100 * (cnum.year1 - cnum.year2) / cnum.year2).toFixed(0) + '%' : '--'
         }
       }
       return {
