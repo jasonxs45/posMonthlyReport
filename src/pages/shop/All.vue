@@ -623,7 +623,8 @@ export default {
             border-right: none;
             color: #888;
             text-align: left;
-            &:first-child{
+            &:first-child,
+            &:nth-child(2){
               border-right:none;
               div{
                 color:#888 !important;
@@ -660,6 +661,8 @@ export default {
                 text-overflow: ellipsis;
                 overflow: hidden;
                 width:80px;
+                color:transparent;
+                border-right-color: transparent;
               }
             }
             div{

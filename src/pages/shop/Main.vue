@@ -192,6 +192,7 @@ export default {
         }
         series.push(item)
       }
+      console.log(series)
       this.detailDataEchart.setOption({
         tooltip: {
           trigger: 'axis',
