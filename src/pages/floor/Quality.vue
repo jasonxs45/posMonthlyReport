@@ -394,14 +394,32 @@ export default {
         width:3rem;
         overflow: hidden;
         box-shadow: 0 0 1px 0 rgba(0,0,0,.2);
+        z-index:10;
         .table-wrapper{
           tr{
             td,th{
-                background: #fff;
+                div{
+                  background: #fff;
+                }
               }
             &.mark-line{
               td,th{
-                background: #f0f0f0 !important;
+                div{
+                  background: #f0f0f0 !important;
+                }
+              }
+            }
+          }
+        }
+        & + .table{
+          .table-wrapper{
+            tr{
+              th,td{
+                &:first-child{
+                  div{
+                    color:transparent
+                  }
+                }
               }
             }
           }
@@ -430,7 +448,7 @@ export default {
               width:3rem
             }
             .column-repeat{
-              width:3.5rem
+              width:3rem
             }
           }
           th{

@@ -40,12 +40,12 @@
               <tr>
                 <td>上月</td>
                 <td v-for="(item, index) in usedCustomerEchartData.series.prevKnum" :key="item+'-'+index">{{(item/1000).toFixed(0)}}</td>
-                <td v-for="(item, index) in usedCustomerEchartData.series.prevCnum" :key="item+'-'+index">{{(item/1000).toFixed(0)}}</td>
+                <td v-for="(item, index) in usedCustomerEchartData.series.prevCnum" :key="item+'-'+index">{{(item/1000).toFixed(1)}}</td>
               </tr>
               <tr>
                 <td>本月</td>
                 <td v-for="(item, index) in usedCustomerEchartData.series.curKnum" :key="item+'-'+index">{{(item/1000).toFixed(0)}}</td>
-                <td v-for="(item, index) in usedCustomerEchartData.series.curCnum" :key="item+'-'+index">{{(item/1000).toFixed(0)}}</td>
+                <td v-for="(item, index) in usedCustomerEchartData.series.curCnum" :key="item+'-'+index">{{(item/1000).toFixed(1)}}</td>
               </tr>
               <tr>
                 <td>环比</td>
@@ -73,11 +73,11 @@
             <tbody>
               <tr>
                 <td>上月</td>
-                <td v-for="(item, index) in usedSalesEchartData.series.prevGrossSales" :key="item+'-'+index">{{(item/1000000).toFixed(0)}}</td>
+                <td v-for="(item, index) in usedSalesEchartData.series.prevGrossSales" :key="item+'-'+index">{{(item/1000000).toFixed(1)}}</td>
               </tr>
               <tr>
                 <td>本月</td>
-                <td v-for="(item, index) in usedSalesEchartData.series.curGrossSales" :key="item+'-'+index">{{(item/1000000).toFixed(0)}}</td>
+                <td v-for="(item, index) in usedSalesEchartData.series.curGrossSales" :key="item+'-'+index">{{(item/1000000).toFixed(1)}}</td>
               </tr>
               <tr>
                 <td>环比</td>

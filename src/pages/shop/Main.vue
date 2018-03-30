@@ -48,7 +48,7 @@
               <td>{{(item.Sales/1000000).toFixed(0)}}</td>
               <td>{{(100*item.Sales/item.AllSales).toFixed(0)}}%</td>
               <td>{{(item.GuestNum/1000).toFixed(0)}}</td>
-              <td>{{(100*item.GuestNum/item.AllGuestNum).toFixed(0)}}%</td>
+              <td>{{item.AllGuestNum ? (100*item.GuestNum/item.AllGuestNum).toFixed(0) + '%' : '--'}}</td>
             </tr>
           </tbody>
         </table>
@@ -126,7 +126,7 @@ export default {
   },
   created () {
     this.selectedMonth = getPrevMonth()
-    this.selectedStartMonth = this.startMonth
+    this.selectedStartMonth = this.startMonth.replace('/', '-')
     this.totalQueries()
   },
   methods: {

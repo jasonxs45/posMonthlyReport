@@ -57,11 +57,11 @@
               <colgroup>
                 <col width="50px">
                 <col width="80px">
-                <col width="70px">
+                <col width="50px">
                 <col width="40px">
                 <col width="60px">
                 <col width="70px">
-                <col width="70px">
+                <col width="80px">
                 <col width="70px">
                 <col width="70px">
               </colgroup>
@@ -76,7 +76,7 @@
                     </div>
                   </th>
                   <th>
-                    <div class="th">楼层/位置</div>
+                    <div class="th">位置</div>
                   </th>
                   <th>
                     <div class="th">业态</div>
@@ -100,7 +100,7 @@
                   <th>
                     <div class="th" @click="sortArr('GroundEffect')"
                     :class="[sortProp==='GroundEffect'?'active':'',sortup?'up':'down']">
-                      <span>坪效</span>
+                      <span>月化坪效</span>
                       <i class="el-icon-caret-top"></i>
                       <i class="el-icon-caret-bottom"></i>
                     </div>
@@ -134,11 +134,11 @@
             <colgroup>
               <col width="50px">
               <col width="80px">
-              <col width="70px">
+              <col width="50px">
               <col width="40px">
               <col width="60px">
               <col width="70px">
-              <col width="70px">
+              <col width="80px">
               <col width="70px">
               <col width="70px">
             </colgroup>
@@ -153,7 +153,7 @@
                   </div>
                 </th>
                 <th>
-                  <div class="th">楼层/位置</div>
+                  <div class="th">位置</div>
                 </th>
                 <th>
                   <div class="th">业态</div>
@@ -177,7 +177,7 @@
                 <th>
                   <div class="th" @click="sortArr('GroundEffect')"
                   :class="[sortProp==='GroundEffect'?'active':'',sortup?'up':'down']">
-                    <span>坪效</span>
+                    <span>月化坪效</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -210,11 +210,11 @@
             <colgroup>
               <col width="50px">
               <col width="80px">
-              <col width="70px">
+              <col width="50px">
               <col width="40px">
               <col width="60px">
               <col width="70px">
-              <col width="70px">
+              <col width="80px">
               <col width="70px">
               <col width="70px">
             </colgroup>
@@ -229,7 +229,7 @@
                   </div>
                 </th>
                 <th>
-                  <div class="th">楼层/位置</div>
+                  <div class="th">位置</div>
                 </th>
                 <th>
                   <div class="th">业态</div>
@@ -253,7 +253,7 @@
                 <th>
                   <div class="th" @click="sortArr('GroundEffect')"
                   :class="[sortProp==='GroundEffect'?'active':'',sortup?'up':'down']">
-                    <span>坪效</span>
+                    <span>月化坪效</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -638,7 +638,7 @@ export default {
         }
       }
       .mytable {
-        width:580px;
+        width:570px;
         tr{
           th,td{
             font-size: .5rem;
@@ -663,6 +663,12 @@ export default {
                 width:80px;
                 color:transparent;
                 border-right-color: transparent;
+              }
+            }
+            &:nth-child(3),
+            &:nth-child(4){
+              div{
+                text-align: left;
               }
             }
             div{

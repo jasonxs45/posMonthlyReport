@@ -75,6 +75,18 @@
                   <div class="column-repeat">{{(100*item/usedTableData.Month3[index]).toFixed(0)}}%</div>
                 </td>
               </tr>
+              <tr>
+                <td><div class="column-head">本年累计<br/>(百万元)</div></td>
+                <td v-for="(item, index) in usedTableData.Year1" :key="'year1-'+index">
+                  <div class="column-repeat">{{(item).toFixed(0)}}</div>
+                </td>
+              </tr>
+              <tr class="mark-line">
+                <td><div class="column-head">YTD同比</div></td>
+                <td v-for="(item, index) in usedTableData.Year2" :key="'year2-'+index">
+                  <div class="column-repeat">{{(item).toFixed(0)}}</div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -85,9 +97,11 @@
                 <th>
                   <div class="column-head">楼层</div>
                 </th>
-                <th v-for="(item, index) in usedTableData.Location"
-                :key="'category-'+index" class="sp"
-                @click="checkDetail(item)">
+                <th
+                  v-for="(item, index) in usedTableData.Location"
+                  :key="'category-'+index" class="sp"
+                  @click="checkDetail(item)"
+                >
                   <div class="column-repeat">{{item}}</div>
                 </th>
               </tr>
@@ -136,6 +150,20 @@
                 <td v-for="(item, index) in usedTableData.Month1" :key="'rate2-'+index">
                   <div class="column-repeat">
                     {{usedTableData.Month3[index]?(100*item/usedTableData.Month3[index] - 100).toFixed(0)+'%':''}}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="column-head">本年累计<br/>(百万元)</div></td>
+                <td v-for="(item, index) in usedTableData.Year1" :key="'year1-'+index">
+                  <div class="column-repeat">{{(item/1000000).toFixed(0)}}</div>
+                </td>
+              </tr>
+              <tr class="mark-line">
+                <td><div class="column-head">YTD同比</div></td>
+                <td v-for="(item, index) in usedTableData.Year1" :key="'rate3-'+index">
+                  <div class="column-repeat">
+                    {{usedTableData.Year2[index]?(100*item/usedTableData.Year2[index] - 100).toFixed(0)+'%':''}}
                   </div>
                 </td>
               </tr>
@@ -197,8 +225,8 @@ export default {
       return formatDate(new Date(half), 'yyyy/MM')
     },
     usedTableData () {
-      // let curMonthSale = {}
-      return this.tableData
+      let curMonthSale = JSON.parse(JSON.stringify(this.tableData))
+      return curMonthSale
     },
     usedEchartData () {
       let data = {
@@ -479,7 +507,7 @@ export default {
               width:3rem
             }
             .column-repeat{
-              width:3.5rem
+              width:3rem
             }
           }
           th{

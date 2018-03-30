@@ -62,7 +62,7 @@
                   <td :class="usedTableData.Month.length>3?'':'autowidth'"><div>{{item.ShopName}}</div></td>
                   <td v-for="(data, idx) in item.Data" :key="item.ShopName+'-'+idx+'1'"
                   :class="usedTableData.Month.length>3?'':'autowidth'">
-                    <div v-if="parseInt(activeTypeIndex)===0">{{data|thousand}}</div>
+                    <div v-if="parseInt(data)===-1">--</div>
                     <div v-else>{{data|thousand}}</div>
                   </td>
                 </tr>
@@ -90,9 +90,12 @@
             <tbody>
               <tr v-for="(item, index) in usedTableData.List" :key="item.ShopName+'-'+index">
                 <td :class="usedTableData.Month.length>3?'':'autowidth'"><div>{{item.ShopName}}</div></td>
-                <td v-for="(data, idx) in item.Data" :key="item.ShopName+'-'+idx+'1'"
-                :class="usedTableData.Month.length>3?'':'autowidth'">
-                  <div v-if="parseInt(activeTypeIndex)===0">{{data|thousand}}</div>
+                <td
+                  v-for="(data, idx) in item.Data"
+                  :key="item.ShopName+'-'+idx+'1'"
+                  :class="usedTableData.Month.length>3?'':'autowidth'"
+                >
+                  <div v-if="parseInt(data)===-1">--</div>
                   <div v-else>{{data|thousand}}</div>
                 </td>
               </tr>
@@ -139,7 +142,7 @@ let tableType = [
     typeId: 0
   },
   {
-    name: '坪效',
+    name: '30天月化坪效',
     typeId: 1
   }
 ]
@@ -206,7 +209,7 @@ export default {
   },
   created () {
     this.selectedMonth = getPrevMonth()
-    this.selectedStartMonth = this.startMonth
+    this.selectedStartMonth = this.startMonth.replace('/', '-')
     this.totalQueries()
   },
   mounted () {
@@ -323,7 +326,7 @@ export default {
     text-align:center;
     .dot{
       display: inline-block;
-      width:4rem;
+      width:5rem;
       margin:0 .5rem .5rem;
       position: relative;
       .text{
