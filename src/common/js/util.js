@@ -33,7 +33,7 @@ let handleRate = (item, index, comparedItem) => {
   let rate = ''
   if (item) {
     rate = Math.round(100 * (comparedItem[index] - item) / item)
-    rate = rate > 0 ? `<span class="up">(+${rate}%)</span>` : `<span class="down">(${rate}%)</span>`
+    rate = rate > 0 ? `<span class="incre">(+${rate}%)</span>` : `<span class="decre">(${rate}%)</span>`
   } else {
     rate = '<span class="down">(--)</span>'
   }

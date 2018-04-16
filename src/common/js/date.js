@@ -31,7 +31,7 @@ function getPrevMonth (str) {
     year2 = parseInt(year2) - 1
     month2 = 12
   }
-  return formatDate(new Date(year2, month2 - 1), 'yyyy/MM')
+  return formatDate(new Date(year2, month2 - 1), 'yyyy-MM')
 }
 function transferWeek (n) {
   var txt = ''

@@ -258,6 +258,7 @@ export default {
   created () {
     this.selectedMonth = getPrevMonth()
     this.selectedStartMonth = this.startMonth
+    alert(this.startMonth)
     this.totalQueries()
   },
   methods: {

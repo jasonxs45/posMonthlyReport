@@ -131,7 +131,7 @@ for (let i = 0; i < color.length; i++) {
 const grids = [
   {title: '面积 ', x: '25%', y: 20, y1: 120, radius: 60},
   {title: '营业额', x: '75%', y: 20, y1: 120, radius: 60},
-  {title: '30天月化坪效', x: '10%', y: 200, y1: 250, width: '80%', height: 110}
+  {title: '30天月化坪效', x: '10%', y: 200, y1: 250, width: '80%', height: '33%'}
 ]
 export default {
   name: 'type-total',

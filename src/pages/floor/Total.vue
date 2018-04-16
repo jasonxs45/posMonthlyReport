@@ -231,7 +231,7 @@ for (let i = 0; i < color.length; i++) {
 const grids = [
   {title: '面积 ', x: '25%', y: 20, y1: 120, radius: 60},
   {title: '营业额', x: '75%', y: 20, y1: 120, radius: 60},
-  {title: '30天月化坪效', x: '10%', y: 190, y1: 230, width: '80%', height: 100}
+  {title: '30天月化坪效', x: '10%', y: 190, y1: 230, width: '80%', height: '38%'}
 ]
 export default {
   name: 'floor-total',
@@ -468,7 +468,7 @@ export default {
             top: grids[2].y1,
             left: grids[2].x,
             width: grids[2].width,
-            height: grids[2].height
+            height: this.malls[this.activeMallIndex].mallid === 2 ? grids[2].height : '30%'
           }
         ],
         xAxis: {

@@ -176,10 +176,10 @@ export default {
     }
   }
 }
-.up{
+.incre{
   color:#41b883
 }
-.down{
+.decre{
   color:#ff4b7c
 }
 .datepick-pop{

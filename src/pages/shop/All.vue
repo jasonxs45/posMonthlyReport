@@ -45,7 +45,7 @@
         </div>
     </div>
     <div class="content">
-      <p class="tip">营业额单位：元</p>
+      <!-- <p class="tip">营业额单位：元</p> -->
       <div class="fktable" ref="fktable">
         <div class="special-th"  v-if="fixThead&&fixColumn">
           <div class="fkcell fkcell1">序号</div>
@@ -84,7 +84,7 @@
                   <th>
                     <div class="th" @click="sortArr('Area')"
                     :class="[sortProp==='Area'?'active':'',sortup?'up':'down']">
-                      <span>面积</span>
+                      <span>面积<br/>(㎡)</span>
                       <i class="el-icon-caret-top"></i>
                       <i class="el-icon-caret-bottom"></i>
                     </div>
@@ -92,7 +92,7 @@
                   <th>
                     <div class="th" @click="sortArr('GrossSales')"
                     :class="[sortProp==='GrossSales'?'active':'',sortup?'up':'down']">
-                      <span>营业额</span>
+                      <span>营业额<br/>(元)</span>
                       <i class="el-icon-caret-top"></i>
                       <i class="el-icon-caret-bottom"></i>
                     </div>
@@ -100,7 +100,7 @@
                   <th>
                     <div class="th" @click="sortArr('GroundEffect')"
                     :class="[sortProp==='GroundEffect'?'active':'',sortup?'up':'down']">
-                      <span>月化坪效</span>
+                      <span>月化坪效<br/>(元/㎡)</span>
                       <i class="el-icon-caret-top"></i>
                       <i class="el-icon-caret-bottom"></i>
                     </div>
@@ -161,7 +161,7 @@
                 <th>
                   <div class="th" @click="sortArr('Area')"
                   :class="[sortProp==='Area'?'active':'',sortup?'up':'down']">
-                    <span>面积</span>
+                    <span>面积<br/>(㎡)</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -169,7 +169,7 @@
                 <th>
                   <div class="th" @click="sortArr('GrossSales')"
                   :class="[sortProp==='GrossSales'?'active':'',sortup?'up':'down']">
-                    <span>营业额</span>
+                    <span>营业额<br/>(元)</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -177,7 +177,7 @@
                 <th>
                   <div class="th" @click="sortArr('GroundEffect')"
                   :class="[sortProp==='GroundEffect'?'active':'',sortup?'up':'down']">
-                    <span>月化坪效</span>
+                    <span>月化坪效<br/>(元/㎡)</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -237,7 +237,7 @@
                 <th>
                   <div class="th" @click="sortArr('Area')"
                   :class="[sortProp==='Area'?'active':'',sortup?'up':'down']">
-                    <span>面积</span>
+                    <span>面积<br/>(㎡)</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -245,7 +245,7 @@
                 <th>
                   <div class="th" @click="sortArr('GrossSales')"
                   :class="[sortProp==='GrossSales'?'active':'',sortup?'up':'down']">
-                    <span>营业额</span>
+                    <span>营业额<br/>(元)</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -253,7 +253,7 @@
                 <th>
                   <div class="th" @click="sortArr('GroundEffect')"
                   :class="[sortProp==='GroundEffect'?'active':'',sortup?'up':'down']">
-                    <span>月化坪效</span>
+                    <span>月化坪效<br/>(元/㎡)</span>
                     <i class="el-icon-caret-top"></i>
                     <i class="el-icon-caret-bottom"></i>
                   </div>
@@ -543,7 +543,7 @@ export default {
     position: relative;
     overflow: hidden;
     .special-th{
-      width: 129px;
+      width: 130px;
       position: fixed;
       z-index: 200;
       font-size: 0;
@@ -552,10 +552,8 @@ export default {
       background: #f5f5f5;
       color: #888;
       padding: 0 .2rem;
-      line-height:1.5rem ;
-      height:1.5rem;
-      box-shadow: 0 -2px 2px 0 rgba(0,0,0,.3);
-      border-bottom:1px solid #ddd;
+      line-height:2rem ;
+      height:2rem;
       .fkcell{
         font-size: .5rem;
         display: inline-block;
@@ -567,7 +565,7 @@ export default {
           border-right:1px solid #ddd;
         }
         &.fkcell2{
-          width: 79px;
+          width: 80px;
           margin-right: -.2rem;
         }
       }
@@ -579,7 +577,7 @@ export default {
       &.extra {
         display: none;
         width: 100%;
-        height:1.5rem;
+        height:2rem;
         overflow: hidden;
         &.fixed{
           position: fixed;
@@ -592,7 +590,7 @@ export default {
             th,td{
               opacity: 1;
               color: #888;
-              text-align: right;
+              text-align: center;
               &:first-child{
                 text-align:left;
               }
@@ -613,12 +611,10 @@ export default {
         .mytable {
           th,td{
             opacity: 1;
-            border-right: none;
             color: #888;
             text-align: left;
             &:first-child,
             &:nth-child(2){
-              border-right:none;
               div{
                 color:#888 !important;
                 border-right-color: #ddd;
@@ -640,6 +636,8 @@ export default {
             line-height: 1;
             vertical-align: middle;
             background:#fff;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
             &:first-child{
               div{
                 width: 50px;
@@ -665,11 +663,8 @@ export default {
               }
             }
             div{
-              padding: .5rem .2rem;
-              height: 1.5rem;
-              vertical-align: initial;
-              border-right: 1px solid #ddd;
-              border-bottom: 1px solid #ddd;
+              padding:.5rem .2rem;
+              vertical-align: middle;
             }
             &:last-child{
               div{
@@ -678,25 +673,31 @@ export default {
             }
           }
           th{
-            background: #f5f5f5;
+            background: #eee;
             color: #888;
-            font-weight: bold;
             font-size: .5rem;
+            text-align: center;
+            height: 2rem;
             div{
-              height: 1.5rem;
               position: relative;
+              font-weight: 600;
+              span{
+                font-weight: inherit;
+              }
               .el-icon-caret-top,
               .el-icon-caret-bottom{
                 font-size: .5rem;
                 color: #888;
               }
               .el-icon-caret-top{
-                position: relative;
-                top:-.1rem;
+                position: absolute;
+                right:.1rem;
+                top:50%;
+                margin-top:-.3rem;
               }
               .el-icon-caret-bottom{
                 position: absolute;
-                right:.2rem;
+                right:.1rem;
                 top:50%;
                 margin-top:-.1rem;
               }
