@@ -28,6 +28,37 @@ function formatNumber (num, cent, isThousand) {
     return (((sign) ? '' : '-') + num)
   }
 }
+// 处理环比同比
+let handleRate = (item, index, comparedItem) => {
+  let rate = ''
+  if (item) {
+    rate = Math.round(100 * (comparedItem[index] - item) / item)
+    rate = rate > 0 ? `<span class="up">(+${rate}%)</span>` : `<span class="down">(${rate}%)</span>`
+  } else {
+    rate = '<span class="down">(--)</span>'
+  }
+  return `${formatNumber(Math.round(item / 1000000), 0, 1)}${rate}`
+}
+// echart颜色值
+const color = [
+  '#feda66',
+  '#3699d9',
+  '#f28227',
+  '#c23531',
+  '#2f4554',
+  '#61a0a8',
+  '#d48265',
+  '#91c7ae',
+  '#749f83',
+  '#ca8622',
+  '#bda29a',
+  '#6e7074',
+  '#546570',
+  '#c4ccd3',
+  '#CDB5CD'
+]
 export {
-  formatNumber
+  formatNumber,
+  handleRate,
+  color
 }

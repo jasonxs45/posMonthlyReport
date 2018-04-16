@@ -21,8 +21,8 @@ function formatDate (date, fmt) {
 function padLeftZero (str) {
   return ('00' + str).substr(str.length)
 }
-function getPrevMonth () {
-  const today = new Date()
+function getPrevMonth (str) {
+  const today = str ? new Date(str) : new Date()
   const year = today.getFullYear()
   const month = today.getMonth() + 1
   let year2 = year
@@ -31,7 +31,7 @@ function getPrevMonth () {
     year2 = parseInt(year2) - 1
     month2 = 12
   }
-  return formatDate(new Date(year2, month2 - 1), 'yyyy-MM')
+  return formatDate(new Date(year2, month2 - 1), 'yyyy/MM')
 }
 function transferWeek (n) {
   var txt = ''

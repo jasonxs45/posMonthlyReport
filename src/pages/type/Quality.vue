@@ -16,6 +16,16 @@
         @change="totalQueries"></el-date-picker>
     </div>
     <div class="content">
+      <div class="detail-statistics">
+        <h3 class="point-title"><span class="text">各业态日均坪效对比</span></h3>
+        <div class="effacttype-switch">
+          <label class="dot" v-for="(item, index) in compareType" :key="item.name">
+            <input type="radio" name="compareType" :value="index" :checked="index===parseInt(activeTypeIndex)" @change="radioChange"/>
+            <span class="text">{{item.name}}</span>
+          </label>
+        </div>
+        <div class="detail-statistics-echart" ref="detaildataechart"></div>
+      </div>
       <h3 class="point-title"><span class="text">各业态日均坪效对比</span></h3>
       <div class="table">
         <table class="table-wrapper">
@@ -29,63 +39,37 @@
           </thead>
           <tbody>
             <tr>
-              <td>面积<br/>(㎡)</td>
-              <td v-for="(item, index) in usedTableData.Area" :key="'area-'+index">{{item|thousand}}</td>
-            </tr>
-            <tr>
               <td>本月<br/>(元)</td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'curMonthSale-'+index">
                 {{item|thousand}}
                 </td>
             </tr>
-            <tr>
+            <tr v-show="activeTypeIndex>2">
               <td>上月<br/>(元)</td>
               <td v-for="(item, index) in usedTableData.Month2" :key="'prevMonthSale-'+index">
                 {{item|thousand}}
               </td>
             </tr>
-            <tr class="mark-line">
+            <tr  v-show="activeTypeIndex>2" class="mark-line">
               <td>环比</td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'rate1-'+index">
                 {{usedTableData.Month2[index]?(100*item/usedTableData.Month2[index] - 100).toFixed(0)+'%':'--'}}
               </td>
             </tr>
-            <tr>
+            <tr v-show="activeTypeIndex<3">
               <td>去年同期<br/>(元)</td>
               <td v-for="(item, index) in usedTableData.Month3" :key="'prevYearMonthSales-'+index">
                 {{item|thousand}}
               </td>
             </tr>
-            <tr class="mark-line">
+            <tr v-show="activeTypeIndex<3" class="mark-line">
               <td>同比</td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'rate2-'+index">
                 {{usedTableData.Month3[index]?(100*item/usedTableData.Month3[index] - 100).toFixed(0)+'%':''}}
               </td>
             </tr>
-            <tr>
-              <td>本年累计<br/>(元)</td>
-              <td v-for="(item, index) in usedTableData.Year1" :key="'curYearSales-'+index">
-                {{item|thousand}}
-              </td>
-            </tr>
-            <tr class="mark-line">
-              <td>YTD同比</td>
-              <td v-for="(item, index) in usedTableData.Year1" :key="'yearrate-'+index">
-                {{usedTableData.Year2[index]?(100*item/usedTableData.Year2[index]-100).toFixed(0)+'%':''}}
-              </td>
-            </tr>
           </tbody>
         </table>
-      </div>
-      <div class="detail-statistics">
-        <h3 class="point-title"><span class="text">各业态日均坪效对比</span></h3>
-        <div class="effacttype-switch">
-          <label class="dot" v-for="(item, index) in compareType" :key="item.name">
-            <input type="radio" name="compareType" :value="index" :checked="index===parseInt(activeTypeIndex)" @change="radioChange"/>
-            <span class="text">{{item.name}}</span>
-          </label>
-        </div>
-        <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
     </div>
   </div>
@@ -98,11 +82,7 @@ import { malls } from 'common/js/config'
 import { formatNumber } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
-const color = ['#f28227', '#feda66', '#87d850']
-const grids = [
-  {x: '20%', y: '50%', x1: 0, y1: '3%', width: '50%', height: '100%'},
-  {x: '20%', y: '50%', x1: 0, y1: '3%', width: '50%', height: '100%'}
-]
+const color = ['#f28227', '#2b91d5']
 export default {
   name: 'type-quality',
   data () {
@@ -111,11 +91,27 @@ export default {
       compareType: [
         {
           typeId: 0,
-          name: '环比'
+          name: '全月同比'
         },
         {
           typeId: 1,
-          name: '同比'
+          name: '工作日同比'
+        },
+        {
+          typeId: 2,
+          name: '节假日同比'
+        },
+        {
+          typeId: 3,
+          name: '全月环比'
+        },
+        {
+          typeId: 4,
+          name: '工作日环比'
+        },
+        {
+          typeId: 5,
+          name: '节假日环比'
         }
       ],
       activeMallIndex: 0,
@@ -174,7 +170,8 @@ export default {
       let opt = {
         v: 'Get_OperationEffect_Table',
         month: this.endMonth,
-        MallID: this.malls[this.activeMallIndex].mallid
+        MallID: this.malls[this.activeMallIndex].mallid,
+        compareType: this.compareType[this.activeTypeIndex].typeId
       }
       let layerindex = layer.loading('加载中')
       api.query(opt).then((res) => {
@@ -207,8 +204,38 @@ export default {
     initEchart () {
       let _self = this
       this.echart = echarts.init(this.$refs.detaildataechart)
+      let width = this.echart.getWidth()
+      let data1 = this.usedEchartData.series.monthly
+      let data2 = this.usedEchartData.series.workday
+      console.log(this.usedEchartData)
+      let labelOption = {
+        normal: {
+          show: true,
+          position: 'right',
+          distance: 2,
+          formatter (params) {
+            let val1 = params.value
+            let val2 = data2[params.dataIndex]
+            let res
+            if (val2) {
+              if (val1 - val2 > 0) {
+                res = `+${(100 * (val1 - val2) / val2).toFixed(0)}%`
+              } else {
+                res = `${(100 * (val1 - val2) / val2).toFixed(0)}%`
+              }
+            } else {
+              res = '--'
+            }
+            return res
+          },
+          fontSize: 8
+        }
+      }
       this.echart.setOption({
         color,
+        title: {
+          show: false
+        },
         tooltip: {
           trigger: 'axis',
           position (point, params, dom, rect, size) {
@@ -231,80 +258,49 @@ export default {
             return title + text
           }
         },
-        title: [
-          {
-            text: '本月',
-            left: '20%',
-            top: grids[0].y1,
-            textStyle: {
-              fontSize: 12
-            }
-          },
-          {
-            text: this.activeTypeIndex === 0 ? '上月' : '去年同期',
-            right: '20%',
-            top: grids[1].y1,
-            textStyle: {
-              fontSize: 12
-            }
-          }
-        ],
         legend: {
           type: 'scroll',
-          data: ['全月', '工作日', '节假日'],
-          bottom: 5,
+          data: ['去年同期', '本月'],
+          bottom: 10,
           itemHeight: 8
+        },
+        grid: {
+          top: 20
         },
         textStyle: {
           fontSize: 8
         },
         xAxis: {
-          type: 'category',
+          type: 'value',
           boundaryGap: true,
           axisLabel: {
             fontSize: 8
-          },
-          splitLine: {
-            show: true,
-            interval: 3,
-            lineStyle: {
-              color: '#000'
-            }
+          }
+        },
+        yAxis: {
+          type: 'category',
+          name: '日均坪效(元)',
+          nameLocation: 'center',
+          nameGap: 50 - width,
+          nameRotate: -90,
+          axisLabel: {
+            fontSize: 8
           },
           data: this.usedEchartData.xlabel
         },
-        yAxis: [
-          {
-            type: 'value',
-            name: '日均坪效(元)',
-            axisLabel: {
-              fontSize: 8
-            },
-            splitLine: {
-              lineStyle: {
-                type: 'dashed'
-              }
-            }
-          }
-        ],
         series: [
           {
-            name: '全月',
+            name: '去年同期',
             type: 'bar',
             barGap: '20%',
-            data: this.usedEchartData.series.monthly
+            data: data2
           },
           {
-            name: '工作日',
+            name: '本月',
             type: 'bar',
             barGap: '20%',
-            data: this.usedEchartData.series.workday
-          },
-          {
-            name: '节假日',
-            type: 'bar',
-            barGap: '20%',
-            data: this.usedEchartData.series.weekly
+            label: labelOption,
+            data: data1
           }
         ]
       })
@@ -324,6 +320,7 @@ export default {
     radioChange (e) {
       this.activeTypeIndex = parseInt(e.target.value)
       this.getEchartData()
+      this.getStatistics()
     }
   }
 }
@@ -334,47 +331,16 @@ export default {
   .point-title{
     margin-top:0;
   }
-  .table{
-    margin:.5rem -.5rem 1rem;
-    .table-wrapper{
-      width:100%;
-      border-top:1px solid #ddd;
-      border-left:1px solid #ddd;
-      .mark-line{
-        background: #f0f0f0;
-      }
-      tr{
-        th,td{
-          text-align:right;
-          border-right:1px solid #ddd;
-          border-bottom:1px solid #ddd;
-          padding:.3rem;
-          line-height:1.3;
-          vertical-align: middle;
-          font-size:.5rem;
-          &:first-child{
-            text-align: center;
-          }
-        }
-        th{
-          background:#f2f2f2;
-          font-weight: 600;
-          font-size:.5rem;
-          &.sp{
-            text-decoration: underline;
-            font-size:.5rem;
-            font-weight: 500;
-          }
-        }
-      }
-    }
+  .detail-statistics-echart{
+    width:100%;
+    height:10rem;
   }
   .effacttype-switch{
     text-align:center;
     .dot{
       display: inline-block;
-      width:5rem;
-      margin:1rem .5rem .5rem;
+      width:4rem;
+      margin:.5rem .5rem 0;
       position: relative;
       .text{
         display: block;
@@ -404,9 +370,47 @@ export default {
       }
     }
   }
-  .detail-statistics-echart{
-    width:100%;
-    height:12rem;
+  .table{
+    margin:.5rem -.5rem 1rem;
+    .table-wrapper{
+      width:100%;
+      border-top:1px solid #ddd;
+      border-left:1px solid #ddd;
+      .mark-line{
+        background: #ddd;
+        td{
+          border-right-color:#ccc;
+        }
+      }
+      tr{
+        th,td{
+          text-align:right;
+          border-right:1px solid #ddd;
+          border-bottom:1px solid #ddd;
+          padding:.3rem;
+          line-height:1.3;
+          vertical-align: middle;
+          font-size:.5rem;
+          &:first-child{
+            text-align: center;
+            font-weight: 600;
+          }
+          &:last-child{
+            border-right:none;
+          }
+        }
+        th{
+          background:#f2f2f2;
+          font-weight: 600;
+          font-size:.5rem;
+          text-align: center;
+          &.sp{
+            text-decoration: underline;
+            font-size:.5rem;
+          }
+        }
+      }
+    }
   }
 }
 </style>

@@ -22,32 +22,53 @@
         <div class="table">
           <table class="table-wrapper">
             <thead>
-              <tr>
-                <th rowspan="2"></th>
-                <th colspan="3" style="text-align:center">客流(千次)</th>
-                <th colspan="3" style="text-align:center">车流(千次)</th>
-              </tr>
-              <tr>
-                <th>全月</th>
-                <th>节假日</th>
-                <th>工作日</th>
-                <th>全月</th>
-                <th>节假日</th>
-                <th>工作日</th>
-              </tr>
+              <tr><th rowspan="2"></th><th colspan="3">客流(千次)</th><th colspan="3">车流(千次)</th></tr>
+              <tr><th>全月</th><th>节假日</th><th>工作日</th><th>全月</th><th>节假日</th><th>工作日</th></tr>
             </thead>
             <tbody>
               <tr>
-                <td>上月</td>
-                <td v-for="(item, index) in usedCustomerEchartData.series.prevKnum" :key="item+'-'+index">{{(item/1000).toFixed(0)}}</td>
-                <td v-for="(item, index) in usedCustomerEchartData.series.prevCnum" :key="item+'-'+index">{{(item/1000).toFixed(1)}}</td>
-              </tr>
-              <tr>
                 <td>本月</td>
-                <td v-for="(item, index) in usedCustomerEchartData.series.curKnum" :key="item+'-'+index">{{(item/1000).toFixed(0)}}</td>
-                <td v-for="(item, index) in usedCustomerEchartData.series.curCnum" :key="item+'-'+index">{{(item/1000).toFixed(1)}}</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.series.curKnum"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000).toFixed(0)}}</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.series.curCnum"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000).toFixed(1)}}</td>
               </tr>
               <tr>
+                <td>去年同期</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.series.prevKnum"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000).toFixed(0)}}</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.series.prevCnum"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000).toFixed(1)}}</td>
+              </tr>
+              <tr class="mark-line">
+                <td>同比</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.monthHB"
+                  :key="'ra1'+index+Math.random().toString(36).substr(2)"
+                >
+                  {{item}}
+                </td>
+              </tr>
+              <tr>
+                <td>上月</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.series.prevKnum"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000).toFixed(0)}}</td>
+                <td
+                  v-for="(item, index) in usedCustomerEchartData.series.prevCnum"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000).toFixed(1)}}</td>
+              </tr>
+              <tr class="mark-line">
                 <td>环比</td>
                 <td v-for="(item, index) in usedCustomerEchartData.monthHB" :key="'ra1'+index">
                   {{item}}
@@ -63,8 +84,12 @@
               <tr>
                 <th rowspan="2"></th>
                 <th colspan="3" style="text-align:center">日均营业额(百万元)</th>
+                <th colspan="3" style="text-align:center">日均坪效(元)</th>
               </tr>
               <tr>
+                <th>全月</th>
+                <th>节假日</th>
+                <th>工作日</th>
                 <th>全月</th>
                 <th>节假日</th>
                 <th>工作日</th>
@@ -72,18 +97,59 @@
             </thead>
             <tbody>
               <tr>
-                <td>上月</td>
-                <td v-for="(item, index) in usedSalesEchartData.series.prevGrossSales" :key="item+'-'+index">{{(item/1000000).toFixed(1)}}</td>
-              </tr>
-              <tr>
                 <td>本月</td>
-                <td v-for="(item, index) in usedSalesEchartData.series.curGrossSales" :key="item+'-'+index">{{(item/1000000).toFixed(1)}}</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.series.curGrossSales"
+                  :key="item+'-'+index"
+                >{{(item/1000000).toFixed(1)}}</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.series.curGrossSales"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000000).toFixed(1)}}</td>
               </tr>
               <tr>
+              <td>去年同期</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000000).toFixed(1)}}</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000000).toFixed(1)}}</td>
+              </tr>
+              <tr class="mark-line">
+                <td>同比</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  :key="'rate'+index+Math.random().toString(36).substr(2)"
+                >{{item}}</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  :key="'rate'+index+Math.random().toString(36).substr(2)"
+                >{{item}}</td>
+              </tr>
+              <tr>
+                <td>上月</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000000).toFixed(1)}}</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  :key="'item-'+index+Math.random().toString(36).substr(2)"
+                >{{(item/1000000).toFixed(1)}}</td>
+              </tr>
+              <tr class="mark-line">
                 <td>环比</td>
-                <td v-for="(item, index) in usedSalesEchartData.monthHB" :key="'rate'+index">
-                  {{item}}
-                </td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  :key="'rate'+index+Math.random().toString(36).substr(2)"
+                >{{item}}</td>
+                <td
+                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  :key="'rate'+index+Math.random().toString(36).substr(2)"
+                >{{item}}</td>
               </tr>
             </tbody>
           </table>
@@ -273,7 +339,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '客/车流量(千次)',
+          name: '客/车流量\n(千次)',
           splitLine: {
             show: false
           },
@@ -362,7 +428,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '营业额(百万元)',
+          name: '营业额\n(百万元)',
           splitLine: {
             show: false
           },
@@ -427,6 +493,13 @@ export default {
       width:100%;
       border-top:1px solid #ddd;
       tr{
+        &.mark-line{
+          background: #ddd;
+          td{
+            border-right-color:#ccc;
+            font-weight: 600;
+          }
+        }
         th,td{
           text-align:right;
           border-right:1px solid #ddd;
@@ -439,16 +512,14 @@ export default {
           }
         }
         td:first-child{
-          text-align: left;
+          text-align: center;
           padding:.4rem .3rem;
         }
         th{
           background:#f2f2f2;
           font-weight: 600;
           line-height:1.5;
-          &:first-child{
-            // text-align: left;
-          }
+          text-align: center;
         }
       }
     }

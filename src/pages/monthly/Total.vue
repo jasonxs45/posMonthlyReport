@@ -16,6 +16,10 @@
         @change="totalQueries"></el-date-picker>
     </div>
     <div class="content">
+      <div class="detail-statistics">
+        <h3 class="point-title"><span class="text">每日变化</span></h3>
+        <div class="detail-statistics-echart" ref="detaildataechart"></div>
+      </div>
       <h3 class="point-title"><span class="text">环比与同比</span></h3>
       <div class="table">
         <table class="table-wrapper">
@@ -26,6 +30,7 @@
               <th>客流<br/>(千次)</th>
               <th>车流<br/>(千次)</th>
               <th>营业额<br/>(百万元)</th>
+              <th>月化坪效<br/>(元/㎡)</th>
             </tr>
           </thead>
           <tbody>
@@ -35,26 +40,14 @@
               <td>{{(usedTableData.curMonth.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.curMonth.cnum/1000)|thousand}}</td>
               <td>{{(usedTableData.curMonth.grosssales/1000000).toFixed(0)}}</td>
-            </tr>
-            <tr>
-              <td>上月</td>
-              <td>{{(usedTableData.prevMonth.openingrate*100).toFixed(0)}}%</td>
-              <td>{{(usedTableData.prevMonth.knum/1000)|thousand}}</td>
-              <td>{{(usedTableData.prevMonth.cnum/1000)|thousand}}</td>
-              <td>{{(usedTableData.prevMonth.grosssales/1000000).toFixed(0)}}</td>
-            </tr>
-            <tr class="mark-line">
-              <td>环比</td>
-              <td>{{usedTableData.monthHB.openingrate}}</td>
-              <td>{{usedTableData.monthHB.knum}}</td>
-              <td>{{usedTableData.monthHB.cnum}}</td>
-              <td>{{usedTableData.monthHB.grosssales}}</td>
+              <td>{{(usedTableData.curMonth.grosssales/1000000).toFixed(0)}}</td>
             </tr>
             <tr>
               <td>去年同期</td>
               <td>{{(usedTableData.prevYearMonth.openingrate*100).toFixed(0)}}%</td>
               <td>{{(usedTableData.prevYearMonth.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.prevYearMonth.cnum/1000)|thousand}}</td>
+              <td>{{(usedTableData.prevYearMonth.grosssales/1000000).toFixed(0)}}</td>
               <td>{{(usedTableData.prevYearMonth.grosssales/1000000).toFixed(0)}}</td>
             </tr>
             <tr class="mark-line">
@@ -63,12 +56,14 @@
               <td>{{usedTableData.monthTB.knum}}</td>
               <td>{{usedTableData.monthTB.cnum}}</td>
               <td>{{usedTableData.monthTB.grosssales}}</td>
+              <td>{{usedTableData.monthTB.grosssales}}</td>
             </tr>
             <tr>
               <td>本年累计<br/>(YTD)</td>
               <td>{{(usedTableData.curYear.openingrate*100).toFixed(0)}}%</td>
               <td>{{(usedTableData.curYear.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.curYear.cnum/1000)|thousand}}</td>
+              <td>{{(usedTableData.curYear.grosssales/1000000).toFixed(0)}}</td>
               <td>{{(usedTableData.curYear.grosssales/1000000).toFixed(0)}}</td>
             </tr>
             <tr class="mark-line">
@@ -77,13 +72,26 @@
               <td>{{usedTableData.yearTB.knum}}</td>
               <td>{{usedTableData.yearTB.cnum}}</td>
               <td>{{usedTableData.yearTB.grosssales}}</td>
+              <td>{{usedTableData.yearTB.grosssales}}</td>
+            </tr>
+            <tr>
+              <td>上月</td>
+              <td>{{(usedTableData.prevMonth.openingrate*100).toFixed(0)}}%</td>
+              <td>{{(usedTableData.prevMonth.knum/1000)|thousand}}</td>
+              <td>{{(usedTableData.prevMonth.cnum/1000)|thousand}}</td>
+              <td>{{(usedTableData.prevMonth.grosssales/1000000).toFixed(0)}}</td>
+              <td>{{(usedTableData.prevMonth.grosssales/1000000).toFixed(0)}}</td>
+            </tr>
+            <tr class="mark-line">
+              <td>环比</td>
+              <td>{{usedTableData.monthHB.openingrate}}</td>
+              <td>{{usedTableData.monthHB.knum}}</td>
+              <td>{{usedTableData.monthHB.cnum}}</td>
+              <td>{{usedTableData.monthHB.grosssales}}</td>
+              <td>{{usedTableData.monthHB.grosssales}}</td>
             </tr>
           </tbody>
         </table>
-      </div>
-      <div class="detail-statistics">
-        <h3 class="point-title"><span class="text">每日变化</span></h3>
-        <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
     </div>
   </div>
@@ -93,7 +101,7 @@ import layer from 'common/js/layer'
 import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls, position } from 'common/js/config'
-import { formatNumber } from 'common/js/util'
+import { formatNumber, color } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
 require('echarts/lib/chart/line')
@@ -270,6 +278,7 @@ export default {
     initEchart () {
       this.echart = echarts.init(this.$refs.detaildataechart)
       this.echart.setOption({
+        color,
         tooltip: {
           trigger: 'axis',
           position
@@ -296,7 +305,7 @@ export default {
         },
         yAxis: [
           {
-            name: '营业额(百万)',
+            name: '营业额\n(百万元)',
             type: 'value',
             axisLabel: {
               formatter (value, index) {
@@ -307,7 +316,7 @@ export default {
           },
           {
             type: 'value',
-            name: '客/车流量(千次)',
+            name: '客/车流量\n(千次)',
             splitLine: {
               show: false
             },
@@ -322,36 +331,21 @@ export default {
         series: [{
             name: '营业额',
             type: 'line',
-            data: this.usedEchartData.series.grosssales,
-            itemStyle:{
-              normal:{
-                color:'#278dd3'
-              }
-            }
+            data: this.usedEchartData.series.grosssales
           },
           {
             name: '车流量',
             type: 'bar',
             stack: '流量',
             yAxisIndex: 1,
-            data: this.usedEchartData.series.cnum,
-            itemStyle:{
-              normal:{
-                color:'#666'
-              }
-            }
+            data: this.usedEchartData.series.cnum
           },
           {
             name: '客流量',
             type: 'bar',
             stack: '流量',
             yAxisIndex: 1,
-            data: this.usedEchartData.series.knum,
-            itemStyle: {
-              normal: {
-                color: '#e78f72'
-              }
-            }
+            data: this.usedEchartData.series.knum
           }
         ]
       })
@@ -363,50 +357,63 @@ export default {
 @import "~common/scss/variables";
 .monthly-total {
   .point-title{
-    margin-top:0;
+    &:first-child{
+      margin-top:0;
+    }
   }
   .table{
-    margin:.5rem -.5rem 1rem;
+    margin:1rem -.5rem 1rem;
     .table-wrapper{
       width:100%;
       border-top:1px solid #ddd;
-      tr{
-        &.mark-line{
-          background: #f0f0f0;
-        }
-        th,td{
-          text-align:right;
-          border-right:1px solid #ddd;
-          border-bottom:1px solid #ddd;
-          padding:.3rem;
-          line-height:1.3;
-          vertical-align: middle;
-          font-size:.5rem;
-          &:last-child{
-            border-right: none;
+      thead,
+      tbody{
+        tr{
+          &.mark-line{
+            background: #f0f0f0;
           }
-        }
-        td{
-          &:first-child{
-            text-align: center;
+          th,td{
+            text-align:right;
+            border-right:1px solid #ddd;
+            border-bottom:1px solid #ddd;
+            padding:.3rem;
+            line-height:1.3;
+            vertical-align: middle;
             font-size:.5rem;
+            &:last-child{
+              border-right: none;
+            }
           }
-        }
-        th{
-          background:#f2f2f2;
-          font-weight: 600;
-          font-size:.5rem;
-          &:first-child{
+          td{
+            &:first-child{
+              text-align: center;
+              font-size:.5rem;
+            }
+          }
+          th{
+            background:#f2f2f2;
+            font-weight: 600;
+            font-size:.5rem;
             text-align: center;
           }
         }
-
+      }
+      tbody{
+        tr{
+          &.mark-line{
+            background: #ddd;
+            td{
+              font-weight: 600;
+              border-right:1px solid #ccc;
+            }
+          }
+        }
       }
     }
   }
   .detail-statistics-echart{
     width:100%;
-    height:10rem;
+    height:11rem;
   }
 }
 </style>

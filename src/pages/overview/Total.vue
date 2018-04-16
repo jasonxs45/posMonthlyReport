@@ -9,11 +9,23 @@
             :label="item.name"
             :value="index">
           </el-option>
-        </el-select>
-        <el-date-picker v-model="selectedMonth" type="month" format="yyyy年MM月"
-        :clearable=false :editable=false :default-value="new Date(selectedMonth)"
-        placeholder="选择月" class="month-select" popper-class="datepick-pop"
+      </el-select>
+      <div class="month-select">
+        <el-date-picker v-model="selectedStartMonth" class="startMonth" type="month" format="yyyy年MM月"
+        placeholder="选择开始月" popper-class="datepick-pop"
+        clear-icon="none"
+        :clearable=false :editable=false
+        :picker-options="startPickerOptions"
         @change="totalQueries"></el-date-picker>
+        <span class="line">-</span>
+        <el-date-picker v-model="selectedMonth" class="endMonth" type="month" format="yyyy年MM月"
+        prefix-icon="none"
+        clear-icon="none"
+        :clearable=false :editable=false
+        :picker-options="endPickerOptions"
+        placeholder="选择结束月" popper-class="datepick-pop"
+        @change="totalQueries"></el-date-picker>
+      </div>
     </div>
     <div class="content">
       <div class="table">
@@ -80,6 +92,30 @@
         <h3 class="point-title"><span class="text">客/车流及营业额</span></h3>
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
+      <div class="table">
+        <table class="table-wrapper">
+          <thead>
+            <tr>
+              <th>月份</th>
+              <th>开业率<br/>(%)</th>
+              <th>客流量<br/>(人次)</th>
+              <th>车流量<br/>(车次)</th>
+              <th>营业额<br/>(百万元)</th>
+              <th>月化坪效<br/>(元/㎡)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td></td>
+              <td>{{usedTableData.curMonth.knum}}</td>
+              <td>{{usedTableData.prevYearMonth.knum}}</td>
+              <td>{{usedTableData.prevMonth.knum}}</td>
+              <td>{{usedTableData.curYear.knum}}</td>
+              <td>{{usedTableData.prevYear.knum}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -88,7 +124,7 @@ import layer from 'common/js/layer'
 import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls, position } from 'common/js/config'
-import { formatNumber } from 'common/js/util'
+import { formatNumber, color } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
 require('echarts/lib/chart/line')
@@ -101,6 +137,7 @@ export default {
       malls: malls,
       activeMallIndex: 0,
       selectedMonth: '',
+      selectedStartMonth: '',
       tableData: null,
       originOpenData: {},
       openRateEchart: {},
@@ -114,9 +151,31 @@ export default {
       return formatDate(date, 'yyyy-MM')
     },
     startMonth () {
-      let date = new Date(this.selectedMonth)
-      let half = date.setMonth(date.getMonth() - 5)
-      return formatDate(new Date(half), 'yyyy-MM')
+      if (this.selectedStartMonth) {
+        return formatDate(new Date(this.selectedStartMonth), 'yyyy-MM')
+      } else {
+        let date = new Date(this.selectedMonth)
+        let half = date.setMonth(date.getMonth() - 5)
+        return formatDate(new Date(half), 'yyyy-MM')
+      }
+    },
+    startPickerOptions () {
+      let _self = this
+      return {
+        disabledDate (time) {
+          let minDate = new Date('2017/01')
+          return time.getTime() < minDate.getTime() || time.getTime() > new Date(_self.endMonth).getTime()
+        }
+      }
+    },
+    endPickerOptions () {
+      let _self = this
+      return {
+        disabledDate (time) {
+          let minDate = new Date(_self.startMonth)
+          return time.getTime() < minDate.getTime()
+        }
+      }
     },
     usedTableData () {
       let curMonth = {}
@@ -124,6 +183,7 @@ export default {
       let prevYearMonth = {}
       let curYear = {}
       let prevYear = {}
+      console.log(this.tableData)
       if (this.tableData) {
         let grosssales = this.tableData.GrossSales
         let knum = this.tableData.KNum
@@ -197,6 +257,7 @@ export default {
   },
   created () {
     this.selectedMonth = getPrevMonth()
+    this.selectedStartMonth = this.startMonth
     this.totalQueries()
   },
   methods: {
@@ -208,7 +269,8 @@ export default {
     getStatistics () {
       let opt = {
           v: 'GetOverViewData',
-          month: this.endMonth,
+          month1: this.startMonth,
+          month2: this.endMonth,
           MallID: this.malls[this.activeMallIndex].mallid
       }
       let layerindex = layer.loading('加载中')
@@ -310,6 +372,7 @@ export default {
     initDetailDataEchart () {
       this.detailDataEchart = echarts.init(this.$refs.detaildataechart)
       this.detailDataEchart.setOption({
+        color,
         grid: {
           top: 40
         },
@@ -336,7 +399,7 @@ export default {
         },
         yAxis: [
           {
-            name: '营业额(百万)',
+            name: '营业额\n(百万元)',
             type: 'value',
             axisLabel: {
               formatter (value, index) {
@@ -347,7 +410,7 @@ export default {
           },
           {
             type: 'value',
-            name: '客/车流量(千次)',
+            name: '客/车流量\n(千次)',
             splitLine: {
               show: false
             },
@@ -362,34 +425,19 @@ export default {
         series: [{
             name: '营业额',
             type: 'line',
-            data: this.usedDetailData.series.grosssale,
-            itemStyle:{
-              normal:{
-                color:'#278dd3'
-              }
-            }
+            data: this.usedDetailData.series.grosssale
           },
           {
             name: '车流量',
             type: 'bar',
             yAxisIndex: 1,
-            data: this.usedDetailData.series.cnum,
-            itemStyle:{
-              normal:{
-                color:'#666'
-              }
-            }
+            data: this.usedDetailData.series.cnum
           },
           {
             name: '客流量',
             type: 'bar',
             yAxisIndex: 1,
-            data: this.usedDetailData.series.knum,
-            itemStyle: {
-              normal: {
-                color: '#e78f72'
-              }
-            }
+            data: this.usedDetailData.series.knum
           }
         ]
       })
@@ -400,18 +448,61 @@ export default {
 <style lang="scss">
 @import "~common/scss/variables";
 .overview-total {
+  .mall-select {
+    width: 25vw;
+  }
+  .month-select{
+    width: 55vw !important;
+    height:1.4rem;
+    border:1px solid #ddd;
+    overflow: hidden;
+    font-size:0;
+    border-radius:.2rem;
+    .line{
+      display: inline-block;
+      vertical-align: top;
+      width:10%;
+      font-size:.5rem;
+    }
+    .line,
+    .startMonth,
+    .endMonth {
+      display: inline-block;
+      vertical-align: top;
+      width:50%;
+      height:1.4rem;
+      input{
+        border:none;
+        height:1.4rem;
+        line-height:1.4rem;
+        padding-right:5px;
+        padding-left:1rem;
+      }
+    }
+    .endMonth{
+      width:40%;
+      input{
+        padding-left:5px;
+      }
+    }
+    .line{
+      width:10%;
+      text-align:center;
+      line-height:1.4rem;
+    }
+  }
   .table{
-    margin:0 -.5rem 1rem;
+    margin:1rem -.5rem 1rem;
     .table-wrapper{
       width:100%;
       border-top:1px solid #ddd;
       tr{
         th,td{
-          text-align:right;
           border-right:1px solid #ddd;
           border-bottom:1px solid #ddd;
           padding:.4rem .2rem;
           vertical-align: middle;
+          line-height: 1.4;
           &.noright{
             border-right:none;
           }
@@ -440,7 +531,8 @@ export default {
   }
   .detail-statistics-echart{
     width:100%;
-    height:10rem;
+    height:11rem;
+    margin-top: 1rem;
   }
 }
 </style>

@@ -16,6 +16,16 @@
         @change="totalQueries"></el-date-picker>
     </div>
     <div class="content">
+      <div class="detail-statistics">
+        <h3 class="point-title"><span class="text">各楼层日均坪效对比</span></h3>
+        <div class="effacttype-switch">
+          <label class="dot" v-for="(item, index) in compareType" :key="item.name">
+            <input type="radio" name="compareType" :value="index" :checked="index===parseInt(activeTypeIndex)" @change="radioChange"/>
+            <span class="text">{{item.name}}</span>
+          </label>
+        </div>
+        <div class="detail-statistics-echart" ref="detaildataechart"></div>
+      </div>
       <h3 class="point-title"><span class="text">各楼层日均坪效对比</span></h3>
       <div class="mytable">
       <div class="table fixed">
@@ -34,24 +44,18 @@
           </thead>
           <tbody>
             <tr>
-              <td><div class="column-head">面积<br/>(㎡)</div></td>
-              <td v-for="(item, index) in usedTableData.Area" :key="'area-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
-              </td>
-            </tr>
-            <tr>
               <td><div class="column-head">本月<br/>(元)</div></td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'curMonthSale-'+index">
                 <div class="column-repeat">{{item|thousand}}</div>
               </td>
             </tr>
-            <tr>
+            <tr v-show="activeTypeIndex>2">
               <td><div class="column-head">上月<br/>(元)</div></td>
               <td v-for="(item, index) in usedTableData.Month2" :key="'prevMonthSale-'+index">
                 <div class="column-repeat">{{item|thousand}}</div>
               </td>
             </tr>
-            <tr class="mark-line">
+            <tr v-show="activeTypeIndex>2" class="mark-line">
               <td><div class="column-head">环比</div></td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'rate1-'+index">
                 <div class="column-repeat">
@@ -59,31 +63,17 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr v-show="activeTypeIndex<3">
               <td><div class="column-head">去年同期<br/>(元)</div></td>
               <td v-for="(item, index) in usedTableData.Month3" :key="'prevYearMonthSales-'+index">
                 <div class="column-repeat">{{item|thousand}}</div>
               </td>
             </tr>
-            <tr class="mark-line">
+            <tr v-show="activeTypeIndex<3" class="mark-line">
               <td><div class="column-head">同比</div></td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'rate2-'+index">
                 <div class="column-repeat">
                   {{usedTableData.Month3[index]?(100*item/usedTableData.Month3[index] - 100).toFixed(0)+'%':''}}
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><div class="column-head">本年累计<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Year1" :key="'curYearSales-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
-              </td>
-            </tr>
-            <tr class="mark-line">
-              <td><div class="column-head">YTD同比</div></td>
-              <td v-for="(item, index) in usedTableData.Year1" :key="'yearrate-'+index">
-                <div class="column-repeat">
-                  {{usedTableData.Month2[index]?(100*item/usedTableData.Month2[index] - 100).toFixed(0)+'%':'--'}}
                 </div>
               </td>
             </tr>
@@ -106,24 +96,18 @@
           </thead>
           <tbody>
             <tr>
-              <td><div class="column-head">面积<br/>(㎡)</div></td>
-              <td v-for="(item, index) in usedTableData.Area" :key="'area-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
-              </td>
-            </tr>
-            <tr>
               <td><div class="column-head">本月<br/>(元)</div></td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'curMonthSale-'+index">
                 <div class="column-repeat">{{item|thousand}}</div>
               </td>
             </tr>
-            <tr>
+            <tr v-show="activeTypeIndex>2">
               <td><div class="column-head">上月<br/>(元)</div></td>
               <td v-for="(item, index) in usedTableData.Month2" :key="'prevMonthSale-'+index">
                 <div class="column-repeat">{{item|thousand}}</div>
               </td>
             </tr>
-            <tr class="mark-line">
+            <tr v-show="activeTypeIndex>2" class="mark-line">
               <td><div class="column-head">环比</div></td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'rate1-'+index">
                 <div class="column-repeat">
@@ -131,13 +115,13 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr v-show="activeTypeIndex<3">
               <td><div class="column-head">去年同期<br/>(元)</div></td>
               <td v-for="(item, index) in usedTableData.Month3" :key="'prevYearMonthSales-'+index">
                 <div class="column-repeat">{{item|thousand}}</div>
               </td>
             </tr>
-            <tr class="mark-line">
+            <tr v-show="activeTypeIndex<3" class="mark-line">
               <td><div class="column-head">同比</div></td>
               <td v-for="(item, index) in usedTableData.Month1" :key="'rate2-'+index">
                 <div class="column-repeat">
@@ -145,33 +129,9 @@
                 </div>
               </td>
             </tr>
-            <tr>
-              <td><div class="column-head">本年累计<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Year1" :key="'curYearSales-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
-              </td>
-            </tr>
-            <tr class="mark-line">
-              <td><div class="column-head">YTD同比</div></td>
-              <td v-for="(item, index) in usedTableData.Year1" :key="'yearrate-'+index">
-                <div class="column-repeat">
-                  {{usedTableData.Year2[index]?(100*item/usedTableData.Year2[index] - 100).toFixed(0)+'%':'--'}}
-                </div>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
-      </div>
-      <div class="detail-statistics">
-        <h3 class="point-title"><span class="text">各楼层日均坪效对比</span></h3>
-        <div class="effacttype-switch">
-          <label class="dot" v-for="(item, index) in compareType" :key="item.name">
-            <input type="radio" name="compareType" :value="index" :checked="index===parseInt(activeTypeIndex)" @change="radioChange"/>
-            <span class="text">{{item.name}}</span>
-          </label>
-        </div>
-        <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
     </div>
   </div>
@@ -185,10 +145,6 @@ import { formatNumber } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
 const color = ['#f28227', '#2b91d5']
-const grids = [
-  {x: '20%', y: '50%', x1: 0, y1: '3%', width: '50%', height: '100%'},
-  {x: '20%', y: '50%', x1: 0, y1: '3%', width: '50%', height: '100%'}
-]
 export default {
   name: 'floor-quality',
   data () {
@@ -197,11 +153,27 @@ export default {
       compareType: [
         {
           typeId: 0,
-          name: '环比'
+          name: '全月同比'
         },
         {
           typeId: 1,
-          name: '同比'
+          name: '工作日同比'
+        },
+        {
+          typeId: 2,
+          name: '节假日同比'
+        },
+        {
+          typeId: 3,
+          name: '全月环比'
+        },
+        {
+          typeId: 4,
+          name: '工作日环比'
+        },
+        {
+          typeId: 5,
+          name: '节假日环比'
         }
       ],
       activeMallIndex: 0,
@@ -289,9 +261,39 @@ export default {
       })
     },
     initEchart () {
+      let _self = this
       this.echart = echarts.init(this.$refs.detaildataechart)
+      let width = this.echart.getWidth()
+      let data1 = this.usedEchartData.series.month1
+      let data2 = this.usedEchartData.series.month2
+      let labelOption = {
+        normal: {
+          show: true,
+          position: 'right',
+          distance: 2,
+          formatter (params) {
+            let val1 = params.value
+            let val2 = data2[params.dataIndex]
+            let res
+            if (val2) {
+              if (val1 - val2 > 0) {
+                res = `+${(100 * (val1 - val2) / val2).toFixed(0)}%`
+              } else {
+                res = `${(100 * (val1 - val2) / val2).toFixed(0)}%`
+              }
+            } else {
+              res = '--'
+            }
+            return res
+          },
+          fontSize: 8
+        }
+      }
       this.echart.setOption({
         color,
+        title: {
+          show: false
+        },
         tooltip: {
           trigger: 'axis',
           position (point, params, dom, rect, size) {
@@ -304,54 +306,59 @@ export default {
           },
           axisPointer : {
             type : 'shadow'
-          }
-        },
-        title: {
-          text: this.activeTypeIndex === 0 ? '环比' : '同比',
-          left: 'center',
-          top: grids[1].y1,
-          textStyle: {
-            fontSize: 12
+          },
+          formatter (params) {
+            let title = params[0].dataIndex < 4 ? '本月' : _self.activeTypeIndex === 0 ? '上月' : '去年同期'
+            let text = ''
+            for (let i = 0; i < params.length; i++) {
+              text += `<br/>${params[i].marker}${params[i].seriesName}:${formatNumber(params[i].value, 0, 1)}`
+            }
+            return title + text
           }
         },
         legend: {
           type: 'scroll',
-          data: ['本月', this.activeTypeIndex === 0 ? '上月' : '去年同期'],
-          bottom: 5,
+          data: ['去年同期', '本月'],
+          bottom: 10,
           itemHeight: 8
+        },
+        grid: {
+          top: 20
         },
         textStyle: {
           fontSize: 8
         },
         xAxis: {
-          type: 'category',
+          type: 'value',
           boundaryGap: true,
+          axisLabel: {
+            fontSize: 8
+          }
+        },
+        yAxis: {
+          type: 'category',
+          name: '日均坪效(元)',
+          nameLocation: 'center',
+          nameGap: 50 - width,
+          nameRotate: -90,
           axisLabel: {
             fontSize: 8
           },
           data: this.usedEchartData.xlabel
         },
-        yAxis: {
-          type: 'value',
-          name: '日均坪效(元)',
-          axisLabel: {
-            fontSize: 8
-          }
-        },
         series: [
+          {
+            name: '去年同期',
+            type: 'bar',
+            barGap: '20%',
+            data: data2
+          },
           {
             name: '本月',
             type: 'bar',
-            data: this.usedEchartData.series.month1.map(item => {
-              return item.toFixed(0)
-            })
-          },
-          {
-            name: this.activeTypeIndex === 0 ? '上月' : '去年同期',
-            type: 'bar',
-            data: this.usedEchartData.series.month2.map(item => {
-              return item.toFixed(0)
-            })
+            barGap: '20%',
+            label: labelOption,
+            data: data1
           }
         ]
       })
@@ -379,10 +386,12 @@ export default {
 @import "~common/scss/variables";
 .floor-quality {
   .point-title{
-    margin-top:0;
+    &:first-child{
+      margin-top:0;
+    }
   }
   .mytable{
-    margin:.5rem -.5rem 1rem;
+    margin:1rem -.5rem 1rem;
     position: relative;
     .table{
       overflow-x: auto;
@@ -416,6 +425,7 @@ export default {
             tr{
               th,td{
                 &:first-child{
+                  font-weight: 600;
                   div{
                     color:transparent
                   }
@@ -445,7 +455,8 @@ export default {
               padding:.3rem;
             }
             .column-head{
-              width:3rem
+              width:3rem;
+              font-weight: 600;
             }
             .column-repeat{
               width:3rem
@@ -454,6 +465,7 @@ export default {
           th{
             background:#f2f2f2;
             font-size:.5rem;
+            text-align: center;
             div{
               font-weight: 600;
             }
@@ -471,8 +483,8 @@ export default {
     text-align:center;
     .dot{
       display: inline-block;
-      width:5rem;
-      margin:1rem .5rem .5rem;
+      width:4rem;
+      margin:.5rem .5rem 0;
       position: relative;
       .text{
         display: block;
@@ -504,7 +516,7 @@ export default {
   }
   .detail-statistics-echart{
     width:100%;
-    height:12rem;
+    height:14rem;
   }
 }
 </style>

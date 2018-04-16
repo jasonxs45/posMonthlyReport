@@ -35,6 +35,7 @@
             <span class="text">{{item.sname}}</span>
           </label>
         </div>
+        <h3 class="point-title"><span class="text">{{effactType[activeTypeIndex].name}}</span></h3>
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
       <div class="table">
@@ -46,10 +47,10 @@
               <th colspan="2" style="text-align:center">节假日</th>
             </tr>
             <tr>
-              <th>客流量(千人)</th>
-              <th>坪效(元)</th>
-              <th>客流量(千人)</th>
-              <th>坪效(元)</th>
+              <th style="text-align:center">客流量<br/>(千人)</th>
+              <th style="text-align:center">坪效<br/>(元/㎡)</th>
+              <th style="text-align:center">客流量<br/>(千人)</th>
+              <th style="text-align:center">坪效<br/>(元/㎡)</th>
             </tr>
           </thead>
           <tbody>
@@ -383,13 +384,6 @@ export default {
           trigger: 'axis',
           position
         },
-        title: {
-          text: this.effactType[this.activeTypeIndex].name,
-          left: 'center',
-          textStyle: {
-            fontSize: 12
-          }
-        },
         legend: {
           type: 'scroll',
           data: [ '工作日坪效', '工作日客流', '节假日坪效', '节假日客流' ],
@@ -410,7 +404,7 @@ export default {
         },
         yAxis: [
           {
-            name: '坪效(元)',
+            name: '坪效\n(元)',
             type: 'value',
             axisLabel: {
               fontSize: 8,
@@ -421,7 +415,7 @@ export default {
           },
           {
             type: 'value',
-            name: '客流(千人次)',
+            name: '客流\n(千人次)',
             splitLine: {
               show: false
             },
@@ -639,7 +633,7 @@ export default {
       width:100%;
       tr{
         th,td{
-          text-align:right;
+          text-align:center;
           border-right:1px solid #ddd;
           border-bottom:1px solid #ddd;
           padding:.4rem .2rem;
@@ -649,15 +643,15 @@ export default {
             border-right:none;
           }
         }
-        td:first-child{
-          text-align: left;
-        }
         th{
           background:#f2f2f2;
           font-weight: 600;
           line-height:1.5;
+        }
+        td{
+          text-align: right;
           &:first-child{
-            text-align: left;
+            text-align: center;
           }
         }
       }

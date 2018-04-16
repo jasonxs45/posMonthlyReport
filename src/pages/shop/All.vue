@@ -323,23 +323,16 @@ export default {
     usedTableData () {
       let realData = []
       if (this.tableData) {
-        for (let i = 0; i < this.tableData.length; i++) {
-          if (this.selectCategory && this.selectLocation) {
-            if (this.tableData[i].Location === this.selectLocation && this.tableData[i].ShopCategory === this.selectCategory) {
-              realData.push(this.tableData[i])
-            }
-          } else if (this.selectCategory && !this.selectLocation) {
-            if (this.tableData[i].ShopCategory === this.selectCategory) {
-              realData.push(this.tableData[i])
-            }
+        realData = this.tableData.filter(item => {
+          if (this.selectLocation && this.selectCategory) {
+            return item.Location === this.selectLocation && item.ShopCategory === this.selectCategory
           } else if (this.selectLocation && !this.selectCategory) {
-            if (this.tableData[i].Location === this.selectLocation) {
-              realData.push(this.tableData[i])
-            }
-          } else {
-            realData = this.tableData
+            return item.Location === this.selectLocation
+          } else if (this.selectCategory && !this.selectLocation) {
+            return item.ShopCategory === this.selectCategory
           }
-        }
+          return true
+        })
       }
       return realData
     }

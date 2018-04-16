@@ -130,6 +130,41 @@ export default {
     }
   }
 }
+.effacttype-switch{
+  text-align:center;
+  .dot{
+    display: inline-block;
+    width:4rem;
+    margin:1rem .5rem .5rem;
+    position: relative;
+    .text{
+      display: block;
+      border-radius: .2rem;
+      width: 100%;
+      height: 100%;
+      background:#eee;
+      -webkit-appearance:none;
+      outline:none;
+      transition:all .3s;
+      color:#333;
+      line-height:1.5;
+      padding:.3rem;
+      font-size:.5rem;
+    }
+    input{
+      display: block;
+      width:100%;
+      height:100%;
+      position: absolute;
+      top:0;
+      left:0;
+      opacity:0;
+      &:checked+.text{
+        background:$primary-color;
+      }
+    }
+  }
+}
 .content{
   padding:.5rem;
   overflow-x:hidden;
@@ -140,6 +175,12 @@ export default {
       font-size: 0.5rem !important;
     }
   }
+}
+.up{
+  color:#41b883
+}
+.down{
+  color:#ff4b7c
 }
 .datepick-pop{
   width:100% !important;
