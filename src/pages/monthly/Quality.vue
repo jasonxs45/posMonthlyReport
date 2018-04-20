@@ -18,7 +18,7 @@
     <div class="content">
       <h3 class="point-title"><span class="text">工作日与节假日分解对比</span></h3>
       <div class="echarts">
-        <div class="customer-echart" ref="customerechart"></div>
+        <div class="customer-echart" ref="customerechart" style="display:none"></div>
         <div class="table">
           <table class="table-wrapper">
             <thead>
@@ -77,7 +77,7 @@
             </tbody>
           </table>
         </div>
-        <div class="sales-echart" ref="salesechart"></div>
+        <div class="sales-echart" ref="salesechart"  style="display:none"></div>
         <div class="table">
           <table class="table-wrapper">
             <thead>
@@ -103,29 +103,29 @@
                   :key="item+'-'+index"
                 >{{(item/1000000).toFixed(1)}}</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.series.curGrossSales"
+                  v-for="(item, index) in usedSalesEchartData.series.curEffect"
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
-                >{{(item/1000000).toFixed(1)}}</td>
+                >{{item}}</td>
               </tr>
               <tr>
               <td>去年同期</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  v-for="(item, index) in usedSalesEchartData.series.lastYearGrossSales"
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
                 >{{(item/1000000).toFixed(1)}}</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  v-for="(item, index) in usedSalesEchartData.series.lastYearEffect"
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
-                >{{(item/1000000).toFixed(1)}}</td>
+                >{{item}}</td>
               </tr>
               <tr class="mark-line">
                 <td>同比</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  v-for="(item, index) in usedSalesEchartData.series.salesTB"
                   :key="'rate'+index+Math.random().toString(36).substr(2)"
                 >{{item}}</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  v-for="(item, index) in usedSalesEchartData.series.effectTB"
                   :key="'rate'+index+Math.random().toString(36).substr(2)"
                 >{{item}}</td>
               </tr>
@@ -136,18 +136,18 @@
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
                 >{{(item/1000000).toFixed(1)}}</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.series.prevGrossSales"
+                  v-for="(item, index) in usedSalesEchartData.series.prevEffect"
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
-                >{{(item/1000000).toFixed(1)}}</td>
+                >{{item}}</td>
               </tr>
               <tr class="mark-line">
                 <td>环比</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  v-for="(item, index) in usedSalesEchartData.series.salesHB"
                   :key="'rate'+index+Math.random().toString(36).substr(2)"
                 >{{item}}</td>
                 <td
-                  v-for="(item, index) in usedSalesEchartData.monthHB"
+                  v-for="(item, index) in usedSalesEchartData.series.effectHB"
                   :key="'rate'+index+Math.random().toString(36).substr(2)"
                 >{{item}}</td>
               </tr>
@@ -225,26 +225,44 @@ export default {
     usedSalesEchartData () {
       let xlabel = ['全月日均', '节假日日均', '工作日日均']
       let series = {}
-      let monthHB = []
       if (this.salesEchartData) {
         series = {
           prevGrossSales: this.salesEchartData.LastMonth.map(item => {
             return item.toFixed(0)
           }),
+          prevEffect: this.salesEchartData.LastMonthEffect.map(item => {
+            return item.toFixed(0)
+          }),
+          lastYearGrossSales: this.salesEchartData.LastYearMonth.map(item => {
+            return item.toFixed(0)
+          }),
+          lastYearEffect: this.salesEchartData.LastYearMonthEffect.map(item => {
+            return item.toFixed(0)
+          }),
           curGrossSales: this.salesEchartData.ThisMonth.map(item => {
             return item.toFixed(0)
+          }),
+          curEffect: this.salesEchartData.ThisMonthEffect.map(item => {
+            return item.toFixed(0)
+          }),
+          salesHB: this.salesEchartData.LastMonth.map((item, index) => {
+            return item ? Math.round(100 * (this.salesEchartData.ThisMonth[index] - item) / item) + '%' : '--'
+          }),
+          salesTB: this.salesEchartData.LastYearMonth.map((item, index) => {
+            return item ? Math.round(100 * (this.salesEchartData.ThisMonth[index] - item) / item) + '%' : '--'
+          }),
+          effectHB: this.salesEchartData.LastMonthEffect.map((item, index) => {
+            return item ? Math.round(100 * (this.salesEchartData.ThisMonthEffect[index] - item) / item) + '%' : '--'
+          }),
+          effectTB: this.salesEchartData.LastYearMonthEffect.map((item, index) => {
+            return item ? Math.round(100 * (this.salesEchartData.ThisMonthEffect[index] - item) / item) + '%' : '--'
           })
         }
-        for (let i = 0; i < series.prevGrossSales.length; i++) {
-          let rate = series.prevGrossSales[i] ? (100 * (series.curGrossSales[i] - series.prevGrossSales[i]) /
-                    series.prevGrossSales[i]).toFixed(0) + '%' : '--'
-          monthHB.push(rate)
-        }
       }
+      console.log(series)
       return {
         xlabel,
-        series,
-        monthHB
+        series
       }
     }
   },
@@ -281,7 +299,7 @@ export default {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
          this.customerEchartData = res.data.Data
-         this.initCustomerEchart()
+        //  this.initCustomerEchart()
         }
       }).catch((err) => {
         console.log(err)
@@ -299,7 +317,7 @@ export default {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
          this.salesEchartData = res.data.Data
-         this.initSalesEchart()
+        //  this.initSalesEchart()
         }
       }).catch((err) => {
         console.log(err)

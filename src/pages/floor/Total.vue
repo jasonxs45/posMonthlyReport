@@ -124,7 +124,7 @@
                   <div class="column-head">楼层</div>
                 </th>
                 <th
-                  v-for="(item, index) in usedTableData.Location"
+                  v-for="(item, index) in tableData.Location"
                   :key="'category-'+index" class="sp"
                   @click="checkDetail(item)"
                 >
@@ -137,7 +137,7 @@
                 <td>
                   <div class="column-head">本月面积<br/>(㎡)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Area" :key="'area-'+index">
+                <td v-for="(item, index) in tableData.Area" :key="'area-'+index">
                   <div class="column-repeat">{{item}}</div>
                 </td>
               </tr>
@@ -145,7 +145,7 @@
                 <td>
                   <div class="column-head">本月营业额<br/>(百万元)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Month1" :key="'curMonthSale-'+index">
+                <td v-for="(item, index) in tableData.Month1" :key="'curMonthSale-'+index">
                   <div class="column-repeat">{{item}}</div>
                 </td>
               </tr>
@@ -153,7 +153,7 @@
                 <td>
                   <div class="column-head">本月坪效<br/>元/(㎡)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Area" :key="'area-'+index">
+                <td v-for="(item, index) in tableData.Effect1" :key="'area-'+index">
                   <div class="column-repeat" >{{item}}</div>
                 </td>
               </tr>
@@ -161,13 +161,13 @@
                 <td>
                   <div class="column-head">去年同期面积<br/>(㎡)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Month3" :key="'area-'+index">
+                <td v-for="(item, index) in tableData.Area3" :key="'area-'+index">
                   <div class="column-repeat" v-html="item"></div>
                 </td>
               </tr>
               <tr class="mark-line">
                 <td><div class="column-head">去年同期营业额<br/>(百万元)</div></td>
-                <td v-for="(item, index) in usedTableData.Month3" :key="'prevYearMonthSales-'+index">
+                <td v-for="(item, index) in tableData.Month3" :key="'prevYearMonthSales-'+index">
                   <div class="column-repeat" v-html="item"></div>
                 </td>
               </tr>
@@ -175,7 +175,7 @@
                 <td>
                   <div class="column-head">去年同期坪效<br/>元/(㎡)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Month3" :key="'area-'+index">
+                <td v-for="(item, index) in tableData.Effect3" :key="'area-'+index">
                   <div class="column-repeat" v-html="item"></div>
                 </td>
               </tr>
@@ -183,7 +183,7 @@
                 <td>
                   <div class="column-head">上月面积<br/>(㎡)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Month2" :key="'area-'+index">
+                <td v-for="(item, index) in tableData.Area2" :key="'area-'+index">
                   <div class="column-repeat" v-html="item"></div>
                 </td>
               </tr>
@@ -191,7 +191,7 @@
                 <td>
                   <div class="column-head">上月营业额<br/>(百万元)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Month2" :key="'curMonthSale-'+index">
+                <td v-for="(item, index) in tableData.Month2" :key="'curMonthSale-'+index">
                   <div class="column-repeat" v-html="item"></div>
                 </td>
               </tr>
@@ -199,7 +199,7 @@
                 <td>
                   <div class="column-head">上月坪效<br/>元/(㎡)</div>
                 </td>
-                <td v-for="(item, index) in usedTableData.Month2" :key="'area-'+index">
+                <td v-for="(item, index) in tableData.Effect2" :key="'area-'+index">
                   <div class="column-repeat" v-html="item"></div>
                 </td>
               </tr>
@@ -229,9 +229,9 @@ for (let i = 0; i < color.length; i++) {
   pieItemstyle.push(item)
 }
 const grids = [
-  {title: '面积 ', x: '25%', y: 20, y1: 120, radius: 60},
-  {title: '营业额', x: '75%', y: 20, y1: 120, radius: 60},
-  {title: '30天月化坪效', x: '10%', y: 190, y1: 230, width: '80%', height: '38%'}
+  {title: '面积 ', x: '25%', y: 0, y1: 90, radius: 60},
+  {title: '营业额', x: '75%', y: 0, y1: 90, radius: 60},
+  {title: '30天月化坪效', x: '10%', y: 150, y1: 190, width: '80%', height: 80}
 ]
 export default {
   name: 'floor-total',
@@ -263,7 +263,7 @@ export default {
   computed: {
     endMonth () {
       let date = new Date(this.selectedMonth)
-      return formatDate(date, 'yyyy/MM')
+      return formatDate(date, 'yyyy-MM')
     },
     startMonth () {
       let date = new Date(this.selectedMonth)
@@ -290,10 +290,10 @@ export default {
         )
         data.effact.push(
           {
-            value: this.originEchartData.Area[i],
+            value: this.originEchartData.Sales[i] / this.originEchartData.Area[i],
             name: this.originEchartData.Location[i],
             itemStyle: {
-              color: color[i]
+              color: pieItemstyle[i].color
             }
           }
         )
@@ -327,14 +327,9 @@ export default {
       this.getEchartData()
     },
     getStatistics () {
-      let date = this.activeTypeIndex === 0
-            ? this.endMonth
-            : this.activeTypeIndex === 1
-            ? (parseInt(this.endMonth.split('/')[0]) - 1) + '/' + this.endMonth.split('/')[1]
-            : getPrevMonth(this.endMonth)
       let opt = {
         v: 'Get_LocationSales_Table',
-        month: date,
+        month: this.endMonth,
         MallID: this.malls[this.activeMallIndex].mallid
       }
       let layerindex = layer.loading('加载中')
@@ -342,14 +337,27 @@ export default {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
           this.tableData = res.data.Data
-          this.tableData.Area = this.tableData.Area.map(item => formatNumber(Math.round(item), 0, 1))
           // 算环比
           this.tableData.Month2 = this.tableData.Month2.map((item, index) => {
-           return handleRate(item, index, this.tableData.Month1)
+           return handleRate(item, index, this.tableData.Month1, 1000000)
           })
           this.tableData.Month3 = this.tableData.Month3.map((item, index) => {
-           return handleRate(item, index, this.tableData.Month1)
+           return handleRate(item, index, this.tableData.Month1, 1000000)
           })
+          this.tableData.Effect2 = this.tableData.Effect2.map((item, index) => {
+           return handleRate(item, index, this.tableData.Effect1, 1)
+          })
+          this.tableData.Effect3 = this.tableData.Effect3.map((item, index) => {
+           return handleRate(item, index, this.tableData.Effect1, 1)
+          })
+          this.tableData.Area2 = this.tableData.Area2.map((item, index) => {
+           return handleRate(item, index, this.tableData.Area, 1)
+          })
+          this.tableData.Area3 = this.tableData.Area3.map((item, index) => {
+           return handleRate(item, index, this.tableData.Area, 1)
+          })
+          this.tableData.Area = this.tableData.Area.map(item => formatNumber(Math.round(item), 0, 1))
+          this.tableData.Effect1 = this.tableData.Effect1.map(item => formatNumber(Math.round(item), 0, 1))
           this.tableData.Month1 = this.tableData.Month1.map(item => formatNumber(Math.round(item / 1000000), 0, 1))
         }
       }).catch((err) => {
@@ -360,7 +368,7 @@ export default {
       let date = this.activeTypeIndex === 0
             ? this.endMonth
             : this.activeTypeIndex === 1
-            ? (parseInt(this.endMonth.split('/')[0]) - 1) + '/' + this.endMonth.split('/')[1]
+            ? (parseInt(this.endMonth.split('-')[0]) - 1) + '/' + this.endMonth.split('-')[1]
             : getPrevMonth(this.endMonth)
       let opt = {
         v: 'Get_LocationSales_Chart',
@@ -380,6 +388,19 @@ export default {
     },
     initEchart () {
       this.echart = echarts.init(this.$refs.detaildataechart)
+            // 绑定图例点击事件
+      this.echart.on('legendselectchanged', params => {
+        // 筛选柱状图 具体数值
+        series[2].data = this.usedEchartData.effact.filter((item, index) => {
+          return Object.values(params.selected)[index] === true
+        })
+        this.echart.setOption({
+          xAxis: {
+            data: this.usedEchartData.area.filter(item => params.selected[item.name]).map(item => item.name)
+          },
+          series
+        })
+      })
       let itemStyle = {
         emphasis: {
           shadowBlur: 10,
@@ -459,7 +480,7 @@ export default {
         },
         legend: {
           left: 'center',
-          bottom: '5%',
+          top: 300,
           data: this.usedEchartData.area.map(item => item.name),
           itemHeight: 8
         },
@@ -468,7 +489,7 @@ export default {
             top: grids[2].y1,
             left: grids[2].x,
             width: grids[2].width,
-            height: this.malls[this.activeMallIndex].mallid === 2 ? grids[2].height : '30%'
+            height: grids[2].height
           }
         ],
         xAxis: {
@@ -492,7 +513,7 @@ export default {
           {
             gridIndex: 0,
             type: 'value',
-            name: '日均坪效(元)',
+            name: '月化坪效(元)',
             nameGap: 8,
             axisLabel: {
               fontSize: 8
@@ -532,7 +553,7 @@ export default {
   }
   .detail-statistics-echart{
     width:100%;
-    height:18rem;
+    height:16rem;
   }
   .mytable{
     margin:1rem -.5rem 1rem;

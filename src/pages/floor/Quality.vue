@@ -35,7 +35,7 @@
               <th>
                 <div class="column-head">业态</div>
               </th>
-              <th v-for="(item, index) in usedTableData.Location"
+              <th v-for="(item, index) in tableData.Location"
               :key="'category-'+index" class="sp"
               @click="checkDetail(item)">
                 <div class="column-repeat">{{item}}</div>
@@ -45,35 +45,21 @@
           <tbody>
             <tr>
               <td><div class="column-head">本月<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Month1" :key="'curMonthSale-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
+              <td v-for="(item, index) in tableData.Month1" :key="'curMonthSale-'+index">
+                <div class="column-repeat">{{item}}</div>
               </td>
             </tr>
-            <tr v-show="activeTypeIndex>2">
-              <td><div class="column-head">上月<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Month2" :key="'prevMonthSale-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
+            <tr>
+              <td><div class="column-head">{{activeTypeIndex>2?'上月':'去年同期'}}<br/>(元)</div></td>
+              <td v-for="(item, index) in tableData.Month2" :key="'prevMonthSale-'+index">
+                <div class="column-repeat">{{item}}</div>
               </td>
             </tr>
-            <tr v-show="activeTypeIndex>2" class="mark-line">
-              <td><div class="column-head">环比</div></td>
-              <td v-for="(item, index) in usedTableData.Month1" :key="'rate1-'+index">
+            <tr class="mark-line">
+              <td><div class="column-head">{{activeTypeIndex>2?'环比':'同比'}}<br/>(元)</div></td>
+              <td v-for="(item, index) in tableData.Rate" :key="'rate1-'+index">
                 <div class="column-repeat">
-                  {{usedTableData.Month2[index]?(100*item/usedTableData.Month2[index] - 100).toFixed(0)+'%':'--'}}
-                </div>
-              </td>
-            </tr>
-            <tr v-show="activeTypeIndex<3">
-              <td><div class="column-head">去年同期<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Month3" :key="'prevYearMonthSales-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
-              </td>
-            </tr>
-            <tr v-show="activeTypeIndex<3" class="mark-line">
-              <td><div class="column-head">同比</div></td>
-              <td v-for="(item, index) in usedTableData.Month1" :key="'rate2-'+index">
-                <div class="column-repeat">
-                  {{usedTableData.Month3[index]?(100*item/usedTableData.Month3[index] - 100).toFixed(0)+'%':''}}
+                  {{item}}
                 </div>
               </td>
             </tr>
@@ -87,7 +73,7 @@
               <th>
                 <div class="column-head">业态</div>
               </th>
-              <th v-for="(item, index) in usedTableData.Location"
+              <th v-for="(item, index) in tableData.Location"
               :key="'category-'+index" class="sp"
               @click="checkDetail(item)">
                 <div class="column-repeat">{{item}}</div>
@@ -97,35 +83,21 @@
           <tbody>
             <tr>
               <td><div class="column-head">本月<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Month1" :key="'curMonthSale-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
+              <td v-for="(item, index) in tableData.Month1" :key="'curMonthSale-'+index">
+                <div class="column-repeat">{{item}}</div>
               </td>
             </tr>
-            <tr v-show="activeTypeIndex>2">
-              <td><div class="column-head">上月<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Month2" :key="'prevMonthSale-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
+            <tr>
+              <td><div class="column-head">{{activeTypeIndex>2?'上月':'去年同期'}}<br/>(元)</div></td>
+              <td v-for="(item, index) in tableData.Month2" :key="'prevMonthSale-'+index">
+                <div class="column-repeat">{{item}}</div>
               </td>
             </tr>
-            <tr v-show="activeTypeIndex>2" class="mark-line">
-              <td><div class="column-head">环比</div></td>
-              <td v-for="(item, index) in usedTableData.Month1" :key="'rate1-'+index">
+            <tr class="mark-line">
+              <td><div class="column-head">{{activeTypeIndex>2?'环比':'同比'}}<br/>(元)</div></td>
+              <td v-for="(item, index) in tableData.Rate" :key="'rate1-'+index">
                 <div class="column-repeat">
-                  {{usedTableData.Month2[index]?(100*item/usedTableData.Month2[index] - 100).toFixed(0)+'%':'--'}}
-                </div>
-              </td>
-            </tr>
-            <tr v-show="activeTypeIndex<3">
-              <td><div class="column-head">去年同期<br/>(元)</div></td>
-              <td v-for="(item, index) in usedTableData.Month3" :key="'prevYearMonthSales-'+index">
-                <div class="column-repeat">{{item|thousand}}</div>
-              </td>
-            </tr>
-            <tr v-show="activeTypeIndex<3" class="mark-line">
-              <td><div class="column-head">同比</div></td>
-              <td v-for="(item, index) in usedTableData.Month1" :key="'rate2-'+index">
-                <div class="column-repeat">
-                  {{usedTableData.Month3[index]?(100*item/usedTableData.Month3[index] - 100).toFixed(0)+'%':'--'}}
+                  {{item}}
                 </div>
               </td>
             </tr>
@@ -140,7 +112,7 @@
 import layer from 'common/js/layer'
 import 'common/scss/layer.css'
 import api from 'common/api'
-import { malls } from 'common/js/config'
+import { malls, position } from 'common/js/config'
 import { formatNumber } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
@@ -179,8 +151,12 @@ export default {
       activeMallIndex: 0,
       activeTypeIndex: 0,
       selectedMonth: '',
-      tableData: {},
-      originEchartData: null,
+      tableData: {
+        Operation: [],
+        Month1: [],
+        Month2: []
+      },
+      dataset: {},
       echart: {}
     }
   },
@@ -193,19 +169,6 @@ export default {
       let date = new Date(this.selectedMonth)
       let half = date.setMonth(date.getMonth() - 5)
       return formatDate(new Date(half), 'yyyy/MM')
-    },
-    usedTableData () {
-      return this.tableData
-    },
-    usedEchartData () {
-      let data = {
-        xlabel: this.originEchartData.Location,
-        series: {
-          month1: this.originEchartData.ThisMonth,
-          month2: this.originEchartData.LastMonth
-        }
-        }
-      return data
     }
   },
   filters: {
@@ -230,22 +193,6 @@ export default {
       let opt = {
         v: 'Get_LocationEffect_Table',
         month: this.endMonth,
-        MallID: this.malls[this.activeMallIndex].mallid
-      }
-      let layerindex = layer.loading('加载中')
-      api.query(opt).then((res) => {
-        layer.close(layerindex)
-        if (res.data.ErrorCode === 0) {
-          this.tableData = res.data.Data
-        }
-      }).catch((err) => {
-        console.log(err)
-      })
-    },
-    getEchartData () {
-      let opt = {
-        v: 'Get_LocationEffect_Chart',
-        month: this.endMonth,
         MallID: this.malls[this.activeMallIndex].mallid,
         compareType: this.compareType[this.activeTypeIndex].typeId
       }
@@ -253,34 +200,44 @@ export default {
       api.query(opt).then((res) => {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
-         this.originEchartData = res.data.Data
-         this.initEchart()
+          let tableData = res.data.Data
+          // 统计图
+          let echartdata = JSON.parse(JSON.stringify(tableData))
+          this.dataset.source = echartdata
+          Object.values(echartdata).map(item => item.pop())
+          this.initEchart()
+          // 表格
+          tableData.Rate = []
+          for (let i = 0; i < tableData.Location.length; i++) {
+            let rate = tableData.Month2[i]
+                       ? Math.round(100 * (tableData.Month1[i] - tableData.Month2[i]) / tableData.Month2[i]) + '%'
+                       : '--'
+            tableData.Rate.push(rate)
+            tableData.Month1[i] = formatNumber(tableData.Month1[i], 0, 1)
+            tableData.Month2[i] = formatNumber(tableData.Month2[i], 0, 1)
+          }
+          this.tableData = tableData
         }
       }).catch((err) => {
         console.log(err)
       })
     },
+    getEchartData () {
+    },
     initEchart () {
       let _self = this
       this.echart = echarts.init(this.$refs.detaildataechart)
       let width = this.echart.getWidth()
-      let data1 = this.usedEchartData.series.month1
-      let data2 = this.usedEchartData.series.month2
       let labelOption = {
         normal: {
           show: true,
           position: 'right',
           distance: 2,
           formatter (params) {
-            let val1 = params.value
-            let val2 = data2[params.dataIndex]
             let res
-            if (val2) {
-              if (val1 - val2 > 0) {
-                res = `+${(100 * (val1 - val2) / val2).toFixed(0)}%`
-              } else {
-                res = `${(100 * (val1 - val2) / val2).toFixed(0)}%`
-              }
+            if (params.data[2]) {
+              res = Math.round(100 * (params.data[1] - params.data[2]) / params.data[2])
+              res = res > 0 ? `+${res}%` : `${res}%`
             } else {
               res = '--'
             }
@@ -289,6 +246,26 @@ export default {
           fontSize: 8
         }
       }
+      let series = [
+        {
+          name: '本月',
+          type: 'bar',
+          barGap: '20%',
+          label: labelOption
+        },
+        {
+          name: this.activeTypeIndex > 2 ? '上月' : '去年同期',
+          type: 'bar',
+          barGap: '20%'
+        }
+      ]
+      // 绑定图例点击事件
+      this.echart.on('legendselectchanged', params => {
+        labelOption.normal.show = !labelOption.normal.show
+        this.echart.setOption({
+          series
+        })
+      })
       this.echart.setOption({
         color,
         title: {
@@ -296,29 +273,22 @@ export default {
         },
         tooltip: {
           trigger: 'axis',
-          position (point, params, dom, rect, size) {
-            // 固定在顶部
-            var arr = [point[0], '10%']
-            if (point[0] + dom.clientWidth > size.viewSize[0]) {
-              arr[0] = point[0] - dom.clientWidth
-            }
-            return arr
-          },
+          position,
           axisPointer : {
             type : 'shadow'
           },
           formatter (params) {
-            let title = params[0].dataIndex < 4 ? '本月' : _self.activeTypeIndex === 0 ? '上月' : '去年同期'
+            let title = '日均坪效'
             let text = ''
             for (let i = 0; i < params.length; i++) {
-              text += `<br/>${params[i].marker}${params[i].seriesName}:${formatNumber(params[i].value, 0, 1)}`
+              text += `<br/>${params[i].marker}${params[i].seriesName}:${formatNumber(params[i].value[i + 1], 0, 1)}`
             }
             return title + text
           }
         },
         legend: {
           type: 'scroll',
-          data: ['去年同期', '本月'],
+          data: ['本月', _self.activeTypeIndex > 2 ? '上月' : '去年同期'],
           bottom: 10,
           itemHeight: 8
         },
@@ -328,6 +298,7 @@ export default {
         textStyle: {
           fontSize: 8
         },
+        dataset: _self.dataset,
         xAxis: {
           type: 'value',
           boundaryGap: true,
@@ -343,24 +314,10 @@ export default {
           nameRotate: -90,
           axisLabel: {
             fontSize: 8
-          },
-          data: this.usedEchartData.xlabel
-        },
-        series: [
-          {
-            name: '去年同期',
-            type: 'bar',
-            barGap: '20%',
-            data: data2
-          },
-          {
-            name: '本月',
-            type: 'bar',
-            barGap: '20%',
-            label: labelOption,
-            data: data1
           }
-        ]
+          // data: this.usedEchartData.xlabel
+        },
+        series
       })
     },
     checkDetail (type) {
@@ -377,7 +334,7 @@ export default {
     },
     radioChange (e) {
       this.activeTypeIndex = parseInt(e.target.value)
-      this.getEchartData()
+      this.getStatistics()
     }
   }
 }
@@ -407,9 +364,7 @@ export default {
         .table-wrapper{
           tr{
             td,th{
-                div{
-                  background: #fff;
-                }
+                background: #fff;
               }
             &.mark-line{
               td,th{

@@ -52,14 +52,14 @@
             <tr>
               <td>本月坪效<br/>(元/㎡)</td>
               <td
-                v-for="(item, index) in usedTableData.Month1"
+                v-for="(item, index) in usedTableData.Effect1"
                 :key="'curMonthSale-'+index"
               >{{item}}</td>
             </tr>
             <tr class="mark-line">
               <td>去年同期面积<br/>(㎡)</td>
               <td
-                v-for="(item, index) in usedTableData.Month3"
+                v-for="(item, index) in usedTableData.Area3"
                 v-html="item"
                 :key="'area-'+index"
               ></td>
@@ -75,7 +75,7 @@
             <tr class="mark-line">
               <td>去年同期坪效<br/>(元/㎡)</td>
               <td
-                v-for="(item, index) in usedTableData.Month3"
+                v-for="(item, index) in usedTableData.Effect3"
                 v-html="item"
                 :key="'curMonthSale-'+index"
               ></td>
@@ -83,7 +83,7 @@
             <tr class="mark-line1">
               <td>上月面积<br/>(㎡)</td>
               <td
-                v-for="(item, index) in usedTableData.Month2"
+                v-for="(item, index) in usedTableData.Area2"
                 :key="'area-'+index"
                 v-html="item"
               ></td>
@@ -99,7 +99,7 @@
             <tr class="mark-line1">
               <td>上月坪效<br/>(元/㎡)</td>
               <td
-                v-for="(item, index) in usedTableData.Month2"
+                v-for="(item, index) in usedTableData.Effect2"
                 v-html="item"
                 :key="'curMonthSale-'+index"
               ></td>
@@ -129,9 +129,9 @@ for (let i = 0; i < color.length; i++) {
   pieItemstyle.push(item)
 }
 const grids = [
-  {title: '面积 ', x: '25%', y: 20, y1: 120, radius: 60},
-  {title: '营业额', x: '75%', y: 20, y1: 120, radius: 60},
-  {title: '30天月化坪效', x: '10%', y: 200, y1: 250, width: '80%', height: '33%'}
+  {title: '面积 ', x: '25%', y: 0, y1: 90, radius: 60},
+  {title: '营业额', x: '75%', y: 0, y1: 90, radius: 60},
+  {title: '30天月化坪效', x: '10%', y: 150, y1: 190, width: '80%', height: 80}
 ]
 export default {
   name: 'type-total',
@@ -163,7 +163,7 @@ export default {
   computed: {
     endMonth () {
       let date = new Date(this.selectedMonth)
-      return formatDate(date, 'yyyy/MM')
+      return formatDate(date, 'yyyy-MM')
     },
     startMonth () {
       let date = new Date(this.selectedMonth)
@@ -196,7 +196,7 @@ export default {
         )
         data.effact.push(
           {
-            value: Math.round(Math.random() * 999),
+            value: this.originEchartData.Sales[i] / this.originEchartData.Area[i],
             name: this.originEchartData.Operation[i],
             itemStyle: {
               color: pieItemstyle[i].color
@@ -226,14 +226,9 @@ export default {
       this.getEchartData()
     },
     getStatistics () {
-      let date = this.activeTypeIndex === 0
-                 ? this.endMonth
-                 : this.activeTypeIndex === 1
-                 ? (parseInt(this.endMonth.split('/')[0]) - 1) + '/' + this.endMonth.split('/')[1]
-                 : getPrevMonth(this.endMonth)
       let opt = {
         v: 'Get_OperationSales_Table',
-        month: date,
+        month: this.endMonth,
         MallID: this.malls[this.activeMallIndex].mallid
       }
       let layerindex = layer.loading('加载中')
@@ -241,14 +236,28 @@ export default {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
           this.tableData = res.data.Data
-          this.tableData.Area = this.tableData.Area.map(item => formatNumber(Math.round(item), 0, 1))
+
           // 算环比
           this.tableData.Month2 = this.tableData.Month2.map((item, index) => {
-           return handleRate(item, index, this.tableData.Month1)
+           return handleRate(item, index, this.tableData.Month1, 1000000)
           })
           this.tableData.Month3 = this.tableData.Month3.map((item, index) => {
-           return handleRate(item, index, this.tableData.Month1)
+           return handleRate(item, index, this.tableData.Month1, 1000000)
           })
+          this.tableData.Effect2 = this.tableData.Effect2.map((item, index) => {
+           return handleRate(item, index, this.tableData.Effect1, 1)
+          })
+          this.tableData.Effect3 = this.tableData.Effect3.map((item, index) => {
+           return handleRate(item, index, this.tableData.Effect1, 1)
+          })
+          this.tableData.Area2 = this.tableData.Area2.map((item, index) => {
+           return handleRate(item, index, this.tableData.Area, 1)
+          })
+          this.tableData.Area3 = this.tableData.Area3.map((item, index) => {
+           return handleRate(item, index, this.tableData.Area, 1)
+          })
+          this.tableData.Area = this.tableData.Area.map(item => formatNumber(Math.round(item), 0, 1))
+          this.tableData.Effect1 = this.tableData.Effect1.map(item => formatNumber(Math.round(item), 0, 1))
           this.tableData.Month1 = this.tableData.Month1.map(item => formatNumber(Math.round(item / 1000000), 0, 1))
         }
       }).catch((err) => {
@@ -259,7 +268,7 @@ export default {
       let date = this.activeTypeIndex === 0
                  ? this.endMonth
                  : this.activeTypeIndex === 1
-                 ? (parseInt(this.endMonth.split('/')[0]) - 1) + '/' + this.endMonth.split('/')[1]
+                 ? (parseInt(this.endMonth.split('-')[0]) - 1) + '/' + this.endMonth.split('-')[1]
                  : getPrevMonth(this.endMonth)
       let opt = {
         v: 'Get_OperationSales_Chart',
@@ -346,7 +355,7 @@ export default {
       this.echart.on('legendselectchanged', params => {
         // 筛选柱状图 具体数值
         series[2].data = this.usedEchartData.effact.filter((item, index) => {
-          return index !== Object.values(params.selected).findIndex(item => item === false)
+          return Object.values(params.selected)[index] === true
         })
         this.echart.setOption({
           xAxis: {
@@ -369,8 +378,9 @@ export default {
           }
         },
         legend: {
+          type: 'scroll',
           left: 'center',
-          bottom: '6%',
+          top: 300,
           data: this.usedEchartData.area.map(item => item.name),
           itemHeight: 8
         },
@@ -403,7 +413,7 @@ export default {
           {
             gridIndex: 0,
             type: 'value',
-            name: '日均坪效(元)',
+            name: '月化坪效(元)',
             nameGap: 8,
             axisLabel: {
               fontSize: 8
@@ -428,7 +438,7 @@ export default {
     radioChange (e) {
       this.activeTypeIndex = parseInt(e.target.value)
       this.getEchartData()
-      this.getStatistics()
+      // this.getStatistics()
     }
   }
 }
@@ -488,7 +498,7 @@ export default {
   }
   .detail-statistics-echart{
     width:100%;
-    height:18rem;
+    height:16rem;
   }
 }
 </style>

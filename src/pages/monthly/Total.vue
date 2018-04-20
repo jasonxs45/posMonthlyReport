@@ -40,7 +40,7 @@
               <td>{{(usedTableData.curMonth.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.curMonth.cnum/1000)|thousand}}</td>
               <td>{{(usedTableData.curMonth.grosssales/1000000).toFixed(0)}}</td>
-              <td>{{(usedTableData.curMonth.grosssales/1000000).toFixed(0)}}</td>
+              <td>{{usedTableData.curMonth.effact|thousand}}</td>
             </tr>
             <tr>
               <td>去年同期</td>
@@ -48,7 +48,7 @@
               <td>{{(usedTableData.prevYearMonth.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.prevYearMonth.cnum/1000)|thousand}}</td>
               <td>{{(usedTableData.prevYearMonth.grosssales/1000000).toFixed(0)}}</td>
-              <td>{{(usedTableData.prevYearMonth.grosssales/1000000).toFixed(0)}}</td>
+              <td>{{usedTableData.prevYearMonth.effact|thousand}}</td>
             </tr>
             <tr class="mark-line">
               <td>同比</td>
@@ -56,7 +56,7 @@
               <td>{{usedTableData.monthTB.knum}}</td>
               <td>{{usedTableData.monthTB.cnum}}</td>
               <td>{{usedTableData.monthTB.grosssales}}</td>
-              <td>{{usedTableData.monthTB.grosssales}}</td>
+              <td>{{usedTableData.monthTB.effact}}</td>
             </tr>
             <tr>
               <td>本年累计<br/>(YTD)</td>
@@ -64,7 +64,7 @@
               <td>{{(usedTableData.curYear.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.curYear.cnum/1000)|thousand}}</td>
               <td>{{(usedTableData.curYear.grosssales/1000000).toFixed(0)}}</td>
-              <td>{{(usedTableData.curYear.grosssales/1000000).toFixed(0)}}</td>
+              <td>{{usedTableData.curYear.effact|thousand}}</td>
             </tr>
             <tr class="mark-line">
               <td>YTD同比</td>
@@ -72,7 +72,7 @@
               <td>{{usedTableData.yearTB.knum}}</td>
               <td>{{usedTableData.yearTB.cnum}}</td>
               <td>{{usedTableData.yearTB.grosssales}}</td>
-              <td>{{usedTableData.yearTB.grosssales}}</td>
+              <td>{{usedTableData.yearTB.effact}}</td>
             </tr>
             <tr>
               <td>上月</td>
@@ -80,7 +80,7 @@
               <td>{{(usedTableData.prevMonth.knum/1000)|thousand}}</td>
               <td>{{(usedTableData.prevMonth.cnum/1000)|thousand}}</td>
               <td>{{(usedTableData.prevMonth.grosssales/1000000).toFixed(0)}}</td>
-              <td>{{(usedTableData.prevMonth.grosssales/1000000).toFixed(0)}}</td>
+              <td>{{usedTableData.prevMonth.effact|thousand}}</td>
             </tr>
             <tr class="mark-line">
               <td>环比</td>
@@ -88,7 +88,7 @@
               <td>{{usedTableData.monthHB.knum}}</td>
               <td>{{usedTableData.monthHB.cnum}}</td>
               <td>{{usedTableData.monthHB.grosssales}}</td>
-              <td>{{usedTableData.monthHB.grosssales}}</td>
+              <td>{{usedTableData.monthHB.effact}}</td>
             </tr>
           </tbody>
         </table>
@@ -104,8 +104,6 @@ import { malls, position } from 'common/js/config'
 import { formatNumber, color } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
-require('echarts/lib/chart/line')
-
 export default {
   name: 'monthly-total',
   data () {
@@ -142,53 +140,62 @@ export default {
         let knum = this.tableData.KNum
         let cnum = this.tableData.CNum
         let openingrate = this.tableData.OpeningRate
+        let effact = this.tableData.Effact
         curMonth = {
           grosssales: grosssales[0],
           knum: knum[0],
           cnum: cnum[0],
-          openingrate:openingrate[0]
+          openingrate:openingrate[0],
+          effact: effact[0]
         }
         prevMonth = {
           grosssales: grosssales[1],
           knum: knum[1],
           cnum: cnum[1],
-          openingrate:openingrate[1]
+          openingrate:openingrate[1],
+          effact: effact[1]
         }
         monthHB = {
           grosssales: grosssales[1] ? (100 * (grosssales[0] - grosssales[1]) / grosssales[1]).toFixed(0) + '%' : '--',
           knum: knum[1] ? (100 * (knum[0] - knum[1]) / knum[1]).toFixed(0) + '%' : '--',
           cnum: cnum[1] ? (100 * (cnum[0] - cnum[1]) / cnum[1]).toFixed(0) + '%' : '--',
-          openingrate: openingrate[1] ? (100 * (openingrate[0] - openingrate[1]) / openingrate[1]).toFixed(0) + '%' : '--'
+          openingrate: openingrate[1] ? (100 * (openingrate[0] - openingrate[1]) / openingrate[1]).toFixed(0) + '%' : '--',
+          effact: effact[1] ? (100 * (effact[0] - effact[1]) / effact[1]).toFixed(0) + '%' : '--'
         }
         prevYearMonth = {
           grosssales: grosssales[2],
           knum: knum[2],
           cnum: cnum[2],
-          openingrate:openingrate[2]
+          openingrate:openingrate[2],
+          effact: effact[2]
         }
         monthTB = {
           grosssales: grosssales[2] ? (100 * (grosssales[0] - grosssales[2]) / grosssales[2]).toFixed(0) + '%' : '--',
           knum: knum[2] ? (100 * (knum[0] - knum[2]) / knum[2]).toFixed(0) + '%' : '--',
           cnum: cnum[2] ? (100 * (cnum[0] - cnum[2]) / cnum[2]).toFixed(0) + '%' : '--',
-          openingrate: openingrate[2] ? (100 * (openingrate[0] - openingrate[2]) / openingrate[2]).toFixed(0) + '%' : '--'
+          openingrate: openingrate[2] ? (100 * (openingrate[0] - openingrate[2]) / openingrate[2]).toFixed(0) + '%' : '--',
+          effact: effact[2] ? (100 * (effact[0] - effact[2]) / effact[2]).toFixed(0) + '%' : '--'
         }
         curYear = {
           grosssales: grosssales[3],
           knum: knum[3],
           cnum: cnum[3],
-          openingrate:openingrate[3]
+          openingrate:openingrate[3],
+          effact: effact[3]
         }
         prevYear = {
           grosssales: grosssales[4],
           knum: knum[4],
           cnum: cnum[4],
-          openingrate:openingrate[4]
+          openingrate:openingrate[4],
+          effact: effact[4]
         }
         yearTB = {
           grosssales: grosssales[4] ? (100 * (grosssales[3] - grosssales[4]) / grosssales[4]).toFixed(0) + '%' : '--',
           knum: knum[4] ? (100 * (knum[3] - knum[4]) / knum[4]).toFixed(0) + '%' : '--',
           cnum: cnum[4] ? (100 * (cnum[3] - cnum[4]) / cnum[4]).toFixed(0) + '%' : '--',
-          openingrate: openingrate[4] ? (100 * (openingrate[3] - openingrate[4]) / openingrate[4]).toFixed(0) + '%' : '--'
+          openingrate: openingrate[4] ? (100 * (openingrate[3] - openingrate[4]) / openingrate[4]).toFixed(0) + '%' : '--',
+          effact: effact[4] ? (100 * (effact[3] - effact[4]) / effact[4]).toFixed(0) + '%' : '--'
         }
       }
       return {
@@ -252,7 +259,14 @@ export default {
       api.query(opt).then((res) => {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
-          this.tableData = res.data.Data
+          let tableData = res.data.Data
+          tableData.Effact = []
+          for (let i = 0; i < tableData.GrossSales.length; i++) {
+            let effact = Math.round(30 * tableData.GrossSales[i] / tableData.OpeningArea[i])
+            tableData.Effact.push(effact)
+          }
+          this.tableData = tableData
+          console.log(this.tableData)
         }
       }).catch((err) => {
         console.log(err)

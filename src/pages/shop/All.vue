@@ -549,7 +549,7 @@ export default {
       font-size: 0;
       top: 0;
       left: 0;
-      background: #f5f5f5;
+      background: #eee;
       color: #888;
       padding: 0 .2rem;
       line-height:2rem ;
@@ -559,6 +559,7 @@ export default {
         display: inline-block;
         padding: 0 .2rem;
         text-align: left;
+        font-weight: 600;
         &.fkcell1{
           width: 50px;
           margin-left: -.2rem;

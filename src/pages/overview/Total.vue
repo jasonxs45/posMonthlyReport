@@ -28,62 +28,6 @@
       </div>
     </div>
     <div class="content">
-      <div class="table">
-        <table class="table-wrapper">
-          <thead>
-            <tr>
-              <th></th>
-              <th class="noright">本月</th>
-              <th class="noright">同比</th>
-              <th>环比</th>
-              <th class="noright">本年</th>
-              <th>同比</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>客流(车次)</td>
-              <td class="noright">{{usedTableData.curMonth.knum}}</td>
-              <td class="noright">{{usedTableData.prevYearMonth.knum}}</td>
-              <td>{{usedTableData.prevMonth.knum}}</td>
-              <td class="noright">{{usedTableData.curYear.knum}}</td>
-              <td>{{usedTableData.prevYear.knum}}</td>
-            </tr>
-            <tr>
-              <td>车流(人次)</td>
-              <td class="noright">{{usedTableData.curMonth.cnum}}</td>
-              <td class="noright">{{usedTableData.prevYearMonth.cnum}}</td>
-              <td>{{usedTableData.prevMonth.cnum}}</td>
-              <td class="noright">{{usedTableData.curYear.cnum}}</td>
-              <td>{{usedTableData.prevYear.cnum}}</td>
-            </tr>
-            <tr>
-              <td>营业额(元)</td>
-              <td class="noright">{{usedTableData.curMonth.grosssales}}</td>
-              <td class="noright">{{(usedTableData.prevYearMonth.grosssales)}}</td>
-              <td>{{usedTableData.prevMonth.grosssales}}</td>
-              <td class="noright">{{usedTableData.curYear.grosssales}}</td>
-              <td>{{usedTableData.prevYear.grosssales}}</td>
-            </tr>
-            <!-- <tr>
-              <td>面积(㎡)</td>
-              <td class="noright">{{usedTableData.curMonth.grosssales|thousand}}</td>
-              <td class="noright">{{(usedTableData.prevYearMonth.grosssales * 100).toFixed(0)}}%</td>
-              <td>{{(usedTableData.prevMonth.grosssales * 100).toFixed(0)}}%</td>
-              <td class="noright">{{usedTableData.curYear.grosssales|thousand}}</td>
-              <td>{{(usedTableData.prevYear.grosssales * 100).toFixed(0)}}%</td>
-            </tr>
-            <tr>
-              <td>店铺数</td>
-              <td class="noright">{{usedTableData.curMonth.grosssales|thousand}}</td>
-              <td class="noright">{{(usedTableData.prevYearMonth.grosssales * 100).toFixed(0)}}%</td>
-              <td>{{(usedTableData.prevMonth.grosssales * 100).toFixed(0)}}%</td>
-              <td class="noright">{{usedTableData.curYear.grosssales|thousand}}</td>
-              <td>{{(usedTableData.prevYear.grosssales * 100).toFixed(0)}}%</td>
-            </tr> -->
-          </tbody>
-        </table>
-      </div>
       <div class="open-rate">
         <h3 class="point-title"><span class="text">开业率</span></h3>
         <div class="open-rate-echart" ref="openrateechart"></div>
@@ -104,14 +48,17 @@
               <th>月化坪效<br/>(元/㎡)</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td></td>
-              <td>{{usedTableData.curMonth.knum}}</td>
-              <td>{{usedTableData.prevYearMonth.knum}}</td>
-              <td>{{usedTableData.prevMonth.knum}}</td>
-              <td>{{usedTableData.curYear.knum}}</td>
-              <td>{{usedTableData.prevYear.knum}}</td>
+          <tbody v-if="usedTableData">
+            <tr
+              v-for="(item, index) in usedTableData.Month"
+              :key="'item-'+index+Math.random().toString(36).substr(2)"
+            >
+              <td>{{item}}</td>
+              <td>{{usedTableData.OpeningRate[index]}}</td>
+              <td>{{usedTableData.KNum[index]}}</td>
+              <td>{{usedTableData.CNum[index]}}</td>
+              <td>{{usedTableData.GrossSales[index]}}</td>
+              <td>{{usedTableData.Effact[index]}}</td>
             </tr>
           </tbody>
         </table>
@@ -178,49 +125,8 @@ export default {
       }
     },
     usedTableData () {
-      let curMonth = {}
-      let prevMonth = {}
-      let prevYearMonth = {}
-      let curYear = {}
-      let prevYear = {}
       console.log(this.tableData)
-      if (this.tableData) {
-        let grosssales = this.tableData.GrossSales
-        let knum = this.tableData.KNum
-        let cnum = this.tableData.CNum
-        curMonth = {
-          grosssales: formatNumber(grosssales.month1, 0, 1),
-          knum: formatNumber(knum.month1, 0, 1),
-          cnum: formatNumber(cnum.month1, 0, 1)
-        }
-        prevMonth = {
-          grosssales: grosssales.month2 ? (100 * (grosssales.month1 - grosssales.month2) / grosssales.month2).toFixed(0) + '%' : '--',
-          knum: knum.month2 ? (100 * (knum.month1 - knum.month2) / knum.month2).toFixed(0) + '%' : '--',
-          cnum: cnum.month2 ? (100 * (cnum.month1 - cnum.month2) / cnum.month2).toFixed(0) + '%' : '--'
-        }
-        prevYearMonth = {
-          grosssales: grosssales.month3 ? (100 * (grosssales.month1 - grosssales.month3) / grosssales.month3).toFixed(0) + '%' : '--',
-          knum: knum.month3 ? (100 * (knum.month1 - knum.month3) / knum.month3).toFixed(0) + '%' : '--',
-          cnum: cnum.month3 ? (100 * (cnum.month1 - cnum.month3) / cnum.month3).toFixed(0) + '%' : '--'
-        }
-        curYear = {
-          grosssales: formatNumber(grosssales.year1, 0, 1),
-          knum: formatNumber(knum.year1, 0, 1),
-          cnum: formatNumber(cnum.year1, 0, 1)
-        }
-        prevYear = {
-          grosssales: grosssales.year2 ? (100 * (grosssales.year1 - grosssales.year2) / grosssales.year2).toFixed(0) + '%' : '--',
-          knum: knum.year2 ? (100 * (knum.year1 - knum.year2) / knum.year2).toFixed(0) + '%' : '--',
-          cnum: cnum.year2 ? (100 * (cnum.year1 - cnum.year2) / cnum.year2).toFixed(0) + '%' : '--'
-        }
-      }
-      return {
-        curMonth,
-        prevMonth,
-        prevYearMonth,
-        curYear,
-        prevYear
-      }
+      return this.tableData
     },
     usedOpenData () {
       let xlabel = this.originOpenData.Month
@@ -258,7 +164,6 @@ export default {
   created () {
     this.selectedMonth = getPrevMonth()
     this.selectedStartMonth = this.startMonth
-    alert(this.startMonth)
     this.totalQueries()
   },
   methods: {
@@ -269,7 +174,7 @@ export default {
     },
     getStatistics () {
       let opt = {
-          v: 'GetOverViewData',
+          v: 'NewGetOverViewData',
           month1: this.startMonth,
           month2: this.endMonth,
           MallID: this.malls[this.activeMallIndex].mallid
@@ -278,7 +183,18 @@ export default {
       api.query(opt).then((res) => {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
-          this.tableData = res.data.Data
+          let tableData = res.data.Data
+          tableData.Effact = []
+          for (let i = 0; i < tableData.Month.length; i++) {
+            let effact = Math.round(30 * tableData.GrossSales[i] / tableData.OpeningArea[i])
+            effact = formatNumber(effact, 0, 1)
+            tableData.Effact.push(effact)
+            tableData.OpeningRate[i] = (tableData.OpeningRate[i] * 100).toFixed(1)
+            tableData.GrossSales[i] = formatNumber(tableData.GrossSales[i] / 1000000, 1, 1)
+            tableData.KNum[i] = formatNumber(tableData.KNum[i], 0, 1)
+            tableData.CNum[i] = formatNumber(tableData.CNum[i], 0, 1)
+          }
+          this.tableData = tableData
         }
       }).catch((err) => {
         console.log(err)
@@ -452,6 +368,9 @@ export default {
   .mall-select {
     width: 25vw;
   }
+  .point-title{
+    margin-top: 0;
+  }
   .month-select{
     width: 55vw !important;
     height:1.4rem;
@@ -513,8 +432,9 @@ export default {
         }
         td{
           font-size:.5rem;
+          text-align: right;
           &:first-child{
-            text-align: left;
+            text-align: center;
             font-size:.5rem;
           }
         }
@@ -530,10 +450,15 @@ export default {
     width:100%;
     height:8rem;
   }
-  .detail-statistics-echart{
-    width:100%;
-    height:11rem;
-    margin-top: 1rem;
+  .detail-statistics{
+    .point-title{
+      margin-top: 1rem;
+    }
+    .detail-statistics-echart{
+      width:100%;
+      height:11rem;
+      margin-top: 1rem;
+    }
   }
 }
 </style>

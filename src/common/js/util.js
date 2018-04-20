@@ -29,7 +29,7 @@ function formatNumber (num, cent, isThousand) {
   }
 }
 // 处理环比同比
-let handleRate = (item, index, comparedItem) => {
+let handleRate = (item, index, comparedItem, radio) => {
   let rate = ''
   if (item) {
     rate = Math.round(100 * (comparedItem[index] - item) / item)
@@ -37,7 +37,7 @@ let handleRate = (item, index, comparedItem) => {
   } else {
     rate = '<span class="down">(--)</span>'
   }
-  return `${formatNumber(Math.round(item / 1000000), 0, 1)}${rate}`
+  return `${formatNumber(Math.round(item / radio), 0, 1)}<br/>${rate}`
 }
 // echart颜色值
 const color = [
