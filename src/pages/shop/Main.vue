@@ -31,6 +31,7 @@
       <div class="detail-statistics">
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
+      <p style="text-align:center;font-size:.55rem;color:#ff5500;margin:10px 0">注：此处食悦天仅包括美食广场部分</p>
       <div class="table">
         <table class="table-wrapper">
           <thead>
@@ -125,7 +126,11 @@ export default {
     }
   },
   created () {
-    this.selectedMonth = getPrevMonth()
+    let day = this.$route.query.day
+    let mallid = parseInt(this.$route.query.mallid)
+    day = day ? day.substr(0, 4) + '-' + day.substr(4, 2) : ''
+    this.activeMallIndex = mallid ? malls.findIndex(item => item.mallid === mallid) : this.activeMallIndex
+    this.selectedMonth = this.$route.query.day ? day : getPrevMonth()
     this.selectedStartMonth = this.startMonth.replace('/', '-')
     this.totalQueries()
   },
@@ -175,11 +180,9 @@ export default {
         return item.ShopName
       })
       let legend = {
-        type: 'scroll',
         data: legendName,
         bottom: 5,
-        itemHeight: 8,
-        itemWidth: 18
+        itemHeight: 8
       }
       let series = []
       for (let i = 0; i < this.usedEchartData.Data.length; i++) {
@@ -194,6 +197,12 @@ export default {
       }
       console.log(series)
       this.detailDataEchart.setOption({
+        grid: [
+          {
+            y: 40,
+            height: '50%'
+          }
+        ],
         tooltip: {
           trigger: 'axis',
           position

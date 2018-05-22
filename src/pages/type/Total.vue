@@ -196,7 +196,7 @@ export default {
         )
         data.effact.push(
           {
-            value: this.originEchartData.Sales[i] / this.originEchartData.Area[i],
+            value: this.originEchartData.Effect[i],
             name: this.originEchartData.Operation[i],
             itemStyle: {
               color: pieItemstyle[i].color
@@ -215,7 +215,11 @@ export default {
   components: {
   },
   created () {
-    this.selectedMonth = getPrevMonth()
+    let day = this.$route.query.day
+    let mallid = parseInt(this.$route.query.mallid)
+    day = day ? day.substr(0, 4) + '-' + day.substr(4, 2) : ''
+    this.activeMallIndex = mallid ? malls.findIndex(item => item.mallid === mallid) : this.activeMallIndex
+    this.selectedMonth = this.$route.query.day ? day : getPrevMonth()
     this.totalQueries()
   },
   mounted () {

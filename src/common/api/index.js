@@ -7,6 +7,7 @@ const comOpenId = 'gh_ba3ae28cdc9b'
 const webRoot = 'whtd.juzhen.co'
 const url = '/mobile/posDailyReport1/webserver/ShopMonthService.aspx'
 function RedirectAuthUrl (url, comOpenId, auth) {
+  console.log(url)
   if (url.indexOf('?') >= 0) {
       var arr = []
       for (var key in Request) {
@@ -15,16 +16,16 @@ function RedirectAuthUrl (url, comOpenId, auth) {
           }
           arr.push(key + '=' + Request[key])
       }
-      url = url.substr(0, url.indexOf('?'))
-      if (arr.length !== 0) {
-          url = url + '?' + arr.join('&')
-      }
+      // url = url.substr(0, url.indexOf('?'))
+      // if (arr.length !== 0) {
+      //     url = url + '?' + arr.join('&')
+      // }
   }
   let param = qs.stringify({
     v: 'GetAuthUrl',
     state: comOpenId,
     r: Math.random() * 100000,
-    url: `http://${webRoot}/assets/modules/weixin/webserver/WeChatRmote.aspx?refurl=${escape(url)}&auth=${auth}`
+    url: `http://${webRoot}/assets/modules/weixin/webserver/WeChatRmote.aspx?refurl=${escape(url)}`
   })
   jsonp(
     `http://${webRoot}/assets/modules/weixin/webserver/WeChatApi.aspx?${param}`,

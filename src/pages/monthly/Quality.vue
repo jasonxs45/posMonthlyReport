@@ -40,18 +40,18 @@
               <tr>
                 <td>去年同期</td>
                 <td
-                  v-for="(item, index) in usedCustomerEchartData.series.prevKnum"
+                  v-for="(item, index) in usedCustomerEchartData.series.lastYearKnum"
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
                 >{{(item/1000).toFixed(0)}}</td>
                 <td
-                  v-for="(item, index) in usedCustomerEchartData.series.prevCnum"
+                  v-for="(item, index) in usedCustomerEchartData.series.lastYearCnum"
                   :key="'item-'+index+Math.random().toString(36).substr(2)"
                 >{{(item/1000).toFixed(1)}}</td>
               </tr>
               <tr class="mark-line">
                 <td>同比</td>
                 <td
-                  v-for="(item, index) in usedCustomerEchartData.monthHB"
+                  v-for="(item, index) in usedCustomerEchartData.monthTB"
                   :key="'ra1'+index+Math.random().toString(36).substr(2)"
                 >
                   {{item}}
@@ -197,12 +197,17 @@ export default {
       let monthHB = []
       let monthKHB = []
       let monthCHB = []
+      let monthTB = []
+      let monthKTB = []
+      let monthCTB = []
       if (this.customerEchartData) {
         series = {
           prevKnum: this.customerEchartData.LastMonthKNum,
           prevCnum: this.customerEchartData.LastMonthCNum,
           curKnum: this.customerEchartData.ThisMonthKNum,
-          curCnum: this.customerEchartData.ThisMonthCNum
+          curCnum: this.customerEchartData.ThisMonthCNum,
+          lastYearKnum: this.customerEchartData.LastYearMonthKNum,
+          lastYearCnum: this.customerEchartData.LastYearMonthCNum
         }
         for (let i = 0; i < series.prevKnum.length; i++) {
           let rate = series.prevKnum[i] ? (100 * (series.curKnum[i] - series.prevKnum[i]) /
@@ -214,12 +219,24 @@ export default {
                     series.prevCnum[i]).toFixed(0) + '%' : '--'
           monthKHB.push(rate)
         }
+        for (let i = 0; i < series.lastYearKnum.length; i++) {
+          let rate = series.lastYearKnum[i] ? (100 * (series.curKnum[i] - series.lastYearKnum[i]) /
+                    series.lastYearKnum[i]).toFixed(0) + '%' : '--'
+          monthKTB.push(rate)
+        }
+        for (let i = 0; i < series.lastYearCnum.length; i++) {
+          let rate = series.lastYearCnum[i] ? (100 * (series.curCnum[i] - series.lastYearCnum[i]) /
+                    series.lastYearCnum[i]).toFixed(0) + '%' : '--'
+          monthKTB.push(rate)
+        }
         monthHB = monthKHB.concat(monthCHB)
+        monthTB = monthKTB.concat(monthCTB)
       }
       return {
         xlabel,
         series,
-        monthHB
+        monthHB,
+        monthTB
       }
     },
     usedSalesEchartData () {
@@ -274,7 +291,11 @@ export default {
   components: {
   },
   created () {
-    this.selectedMonth = getPrevMonth()
+    let day = this.$route.query.day
+    let mallid = parseInt(this.$route.query.mallid)
+    day = day ? day.substr(0, 4) + '-' + day.substr(4, 2) : ''
+    this.activeMallIndex = mallid ? malls.findIndex(item => item.mallid === mallid) : this.activeMallIndex
+    this.selectedMonth = this.$route.query.day ? day : getPrevMonth()
     this.totalQueries()
   },
   mounted () {
