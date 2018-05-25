@@ -31,7 +31,7 @@
       <div class="detail-statistics">
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
-      <p style="text-align:center;font-size:.55rem;color:#ff5500;margin:10px 0">注：此处食悦天仅包括美食广场部分</p>
+      <!-- <p style="text-align:center;font-size:.55rem;color:#ff5500;margin:10px 0">注：此处食悦天仅包括美食广场部分</p> -->
       <div class="table">
         <table class="table-wrapper">
           <thead>
@@ -63,7 +63,7 @@ import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls, position } from 'common/js/config'
 import { formatNumber } from 'common/js/util'
-import { formatDate, getPrevMonth } from 'common/js/date'
+import { formatDate } from 'common/js/date'
 import echarts from 'echarts'
 require('echarts/lib/chart/line')
 
@@ -73,8 +73,6 @@ export default {
     return {
       show: true,
       malls,
-      activeMallIndex: 0,
-      selectedMonth: '',
       selectedStartMonth: '',
       tableData: null,
       originEchartData: null,
@@ -82,6 +80,22 @@ export default {
     }
   },
   computed: {
+    activeMallIndex: {
+      get () {
+        return this.$store.state.activeMallIndex
+      },
+      set (value) {
+        this.$store.commit('getMallId', value)
+      }
+    },
+    selectedMonth: {
+      get () {
+        return this.$store.state.selectedMonth
+      },
+      set (value) {
+        this.$store.commit('getDate', value)
+      }
+    },
     endMonth () {
       let date = new Date(this.selectedMonth)
       return formatDate(date, 'yyyy/MM')
@@ -126,11 +140,6 @@ export default {
     }
   },
   created () {
-    let day = this.$route.query.day
-    let mallid = parseInt(this.$route.query.mallid)
-    day = day ? day.substr(0, 4) + '-' + day.substr(4, 2) : ''
-    this.activeMallIndex = mallid ? malls.findIndex(item => item.mallid === mallid) : this.activeMallIndex
-    this.selectedMonth = this.$route.query.day ? day : getPrevMonth()
     this.selectedStartMonth = this.startMonth.replace('/', '-')
     this.totalQueries()
   },
@@ -195,7 +204,6 @@ export default {
         }
         series.push(item)
       }
-      console.log(series)
       this.detailDataEchart.setOption({
         grid: [
           {

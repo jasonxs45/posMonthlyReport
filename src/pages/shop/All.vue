@@ -57,7 +57,7 @@
               <colgroup>
                 <col width="50px">
                 <col width="80px">
-                <col width="50px">
+                <col width="60px">
                 <col width="40px">
                 <col width="60px">
                 <col width="70px">
@@ -134,7 +134,7 @@
             <colgroup>
               <col width="50px">
               <col width="80px">
-              <col width="50px">
+              <col width="60px">
               <col width="40px">
               <col width="60px">
               <col width="70px">
@@ -210,7 +210,7 @@
             <colgroup>
               <col width="50px">
               <col width="80px">
-              <col width="50px">
+              <col width="60px">
               <col width="40px">
               <col width="60px">
               <col width="70px">
@@ -291,15 +291,13 @@ import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls } from 'common/js/config'
 import { formatNumber } from 'common/js/util'
-import { formatDate, getPrevMonth } from 'common/js/date'
+import { formatDate } from 'common/js/date'
 
 export default {
   name: 'shop-all',
   data () {
     return {
       malls: malls,
-      activeMallIndex: 0,
-      selectedMonth: '',
       filters: {},
       selectCategory: '',
       selectLocation: '',
@@ -311,6 +309,22 @@ export default {
     }
   },
   computed: {
+    activeMallIndex: {
+      get () {
+        return this.$store.state.activeMallIndex
+      },
+      set (value) {
+        this.$store.commit('getMallId', value)
+      }
+    },
+    selectedMonth: {
+      get () {
+        return this.$store.state.selectedMonth
+      },
+      set (value) {
+        this.$store.commit('getDate', value)
+      }
+    },
     endMonth () {
       let date = new Date(this.selectedMonth)
       return formatDate(date, 'yyyy/MM')
@@ -343,11 +357,6 @@ export default {
     }
   },
   created () {
-    let day = this.$route.query.day
-    let mallid = parseInt(this.$route.query.mallid)
-    day = day ? day.substr(0, 4) + '-' + day.substr(4, 2) : ''
-    this.activeMallIndex = mallid ? malls.findIndex(item => item.mallid === mallid) : this.activeMallIndex
-    this.selectedMonth = this.$route.query.day ? day : getPrevMonth()
     if (this.$route.params.type || this.$route.params.location) {
       this.withQueryEnter()
     } else {
@@ -632,7 +641,7 @@ export default {
         }
       }
       .mytable {
-        width:570px;
+        width:580px;
         tr{
           th,td{
             font-size: .5rem;

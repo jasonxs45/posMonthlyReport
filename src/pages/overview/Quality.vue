@@ -229,7 +229,7 @@ import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls, effactType, position } from 'common/js/config'
 import { formatNumber } from 'common/js/util'
-import { formatDate, getPrevMonth, transferWeek } from 'common/js/date'
+import { formatDate, transferWeek } from 'common/js/date'
 import echarts from 'echarts'
 require('echarts/lib/chart/line')
 
@@ -240,9 +240,7 @@ export default {
       show: true,
       malls,
       effactType,
-      activeMallIndex: 0,
       activeTypeIndex: 0,
-      selectedMonth: '',
       selectedStartMonth: '',
       tableData: null,
       originEchartData: null,
@@ -256,6 +254,22 @@ export default {
     }
   },
   computed: {
+    activeMallIndex: {
+      get () {
+        return this.$store.state.activeMallIndex
+      },
+      set (value) {
+        this.$store.commit('getMallId', value)
+      }
+    },
+    selectedMonth: {
+      get () {
+        return this.$store.state.selectedMonth
+      },
+      set (value) {
+        this.$store.commit('getDate', value)
+      }
+    },
     endMonth () {
       let date = new Date(this.selectedMonth)
       return formatDate(date, 'yyyy-MM')
@@ -348,11 +362,6 @@ export default {
   components: {
   },
   created () {
-    let day = this.$route.query.day
-    let mallid = parseInt(this.$route.query.mallid)
-    day = day ? day.substr(0, 4) + '-' + day.substr(4, 2) : ''
-    this.activeMallIndex = mallid ? malls.findIndex(item => item.mallid === mallid) : this.activeMallIndex
-    this.selectedMonth = this.$route.query.day ? day : getPrevMonth()
     this.selectedStartMonth = this.startMonth
     this.totalQueries()
   },
