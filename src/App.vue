@@ -162,12 +162,12 @@ export default {
     float: right;
     width:40vw !important;
     input{
-      height: 1.4rem;
-      line-height: 1.4rem;
+      height: 1.5rem;
+      line-height: 1.5rem;
       font-size: 0.5rem;
     }
     .el-icon-date,.el-icon-circle-close {
-      line-height:1.4rem !important;
+      line-height:1.5rem !important;
       width: .6rem !important;
       &:before {
         font-size: 0.5rem !important;
