@@ -250,7 +250,6 @@ export default {
   }
   .month-select{
     width: 45vw !important;
-    height:1.4rem;
     border:1px solid #ddd;
     overflow: hidden;
     font-size:0;

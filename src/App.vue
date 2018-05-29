@@ -161,6 +161,7 @@ export default {
   .month-select{
     float: right;
     width:40vw !important;
+    height: 1.5rem;
     input{
       height: 1.5rem;
       line-height: 1.5rem;
