@@ -22,7 +22,8 @@ export default {
 @import "~common/scss/variables";
 .floor {
   .tab-navs {
-    margin-top: 0.2rem;
+    margin: 0;
+    padding: 0;
     .nav-item {
       border-radius: .2rem;
       margin:0 0 0 .5rem;

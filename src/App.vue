@@ -1,5 +1,22 @@
 <template>
   <div id="app">
+    <div class="mall-controller">
+      <span class="head">项目选择：</span>
+      <el-select
+        v-model="activeMallIndex"
+        placeholder="请选择"
+        class="mall-select"
+        popper-class="mall-pop"
+        @change="totalQueries"
+      >
+        <el-option
+          v-for="(item, index) in malls"
+          :key="item.name"
+          :label="item.name"
+          :value="index">
+        </el-option>
+      </el-select>
+    </div>
     <div class="tab-navs">
       <router-link tag="div" class="nav-item" to="/overview">
         概览
@@ -25,11 +42,26 @@
 </template>
 
 <script>
-import { radio } from 'components'
+import { malls } from 'common/js/config'
 export default {
   name: 'App',
-  components: {
-    radio
+  data () {
+    return {
+      malls
+    }
+  },
+  computed: {
+    activeMallIndex: {
+      get () {
+        return this.$store.state.activeMallIndex
+      },
+      set (value) {
+        this.$store.commit('getMallId', value)
+      }
+    }
+  },
+  methods: {
+    totalQueries () {}
   }
 }
 </script>
@@ -38,8 +70,36 @@ export default {
 @import '~common/scss/variables';
 #app {
   color: #333;
+  .mall-controller{
+    padding:10px .5rem;
+    .head{
+      font-size: .55rem;
+      margin-right: 15px;
+    }
+    .mall-select {
+      input {
+        background: $primary-color;
+        border: none;
+        color: #333;
+        font-size: 0.5rem;
+        height: 1.4rem;
+        line-height: 1.4rem;
+      }
+      .el-icon-arrow-up {
+        line-height:1.4rem !important;
+        &:before {
+          color: #fff;
+          font-size: 0.5rem !important;
+        }
+        &:after {
+          vertical-align: top;
+        }
+      }
+    }
+  }
 }
 .tab-navs {
+  margin:0 .5rem 20px;
   height: 1.7rem;
   padding-top: 0.3rem;
   font-size: 0;
@@ -47,15 +107,24 @@ export default {
     display: inline-block;
     width: 20%;
     font-size:.5rem;
-    line-height:1.4rem;
-    height:1.4rem;
+    line-height:1.5rem;
+    height:1.5rem;
     text-align: center;
-    background: #c3c3c3;
-    border-top-left-radius: .4rem;
-    border-top-right-radius:.4rem;
+    background: #ddd;
+    border-left: 1px solid #ccc;
     transition: all .2s ease;
+    &:first-child{
+      border-left: none;
+      border-top-left-radius: .2rem;
+      border-bottom-left-radius: .2rem;
+    }
+    &:last-child{
+      border-top-right-radius: .2rem;
+      border-bottom-right-radius: .2rem;
+    }
     &.router-link-active{
       background-color: $primary-color;
+      border-color: $primary-color;
     }
   }
 }
@@ -82,33 +151,12 @@ export default {
   }
 }
 .query-conditions {
-  padding:.5rem;
+  margin-top: -1.7rem;
+  padding:0 .5rem 15px;
   &:after{
     content:'';
     display:block;
     clear: both;
-  }
-  .mall-select {
-    float: left;
-    width:40vw;
-    input {
-      background: $primary-color;
-      border: none;
-      color: #333;
-      font-size: 0.5rem;
-      height: 1.4rem;
-      line-height: 1.4rem;
-    }
-    .el-icon-arrow-up {
-      line-height:1.4rem !important;
-      &:before {
-        color: #fff;
-        font-size: 0.5rem !important;
-      }
-      &:after {
-        vertical-align: top;
-      }
-    }
   }
   .month-select{
     float: right;

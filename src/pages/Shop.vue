@@ -25,12 +25,14 @@ export default {
 @import "~common/scss/variables";
 .shop {
   .tab-navs {
-    margin-top: 0.2rem;
+    margin: 0;
+    padding: 0;
     .nav-item {
       border-radius: .2rem;
       margin:0 0 0 .5rem;
       border: 1px solid $primary-color;
       background: #fff;
+      width: 14vw;
       &.router-link-active {
         background-color: $primary-color;
       }

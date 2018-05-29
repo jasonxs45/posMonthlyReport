@@ -1,15 +1,6 @@
 <template>
   <div class="overview-quality">
     <div class="query-conditions">
-      <el-select v-model="activeMallIndex" placeholder="请选择" class="mall-select" popper-class="mall-pop"
-      @change="totalQueries">
-          <el-option
-            v-for="(item, index) in malls"
-            :key="item.name"
-            :label="item.name"
-            :value="index">
-          </el-option>
-      </el-select>
       <div class="month-select">
         <el-date-picker v-model="selectedStartMonth" class="startMonth" type="month" format="yyyy年MM月"
         placeholder="选择开始月" popper-class="datepick-pop"
@@ -361,6 +352,11 @@ export default {
   },
   components: {
   },
+  watch: {
+    activeMallIndex (newVal, oldVal) {
+      this.totalQueries()
+    }
+  },
   created () {
     this.selectedStartMonth = this.startMonth
     this.totalQueries()
@@ -560,7 +556,7 @@ export default {
     width: 25vw;
   }
   .month-select{
-    width: 55vw !important;
+    width: 45vw !important;
     height:1.4rem;
     border:1px solid #ddd;
     overflow: hidden;

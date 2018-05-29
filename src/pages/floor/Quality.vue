@@ -1,15 +1,6 @@
 <template>
   <div class="floor-quality">
     <div class="query-conditions">
-      <el-select v-model="activeMallIndex" placeholder="请选择" class="mall-select" popper-class="mall-pop"
-      @change="totalQueries">
-          <el-option
-            v-for="(item, index) in malls"
-            :key="item.name"
-            :label="item.name"
-            :value="index">
-          </el-option>
-        </el-select>
         <el-date-picker v-model="selectedMonth" type="month" format="yyyy年MM月"
         :clearable=false :editable=false
         placeholder="选择月" class="month-select" popper-class="datepick-pop"
@@ -190,7 +181,10 @@ export default {
       return formatNumber(num, 0, 1)
     }
   },
-  components: {
+  watch: {
+    activeMallIndex (newVal, oldVal) {
+      this.totalQueries()
+    }
   },
   created () {
     this.totalQueries()
