@@ -377,7 +377,7 @@ export default {
     margin-top: 0;
   }
   .month-select{
-    width: 45vw !important;
+    width: 46vw !important;
     border:1px solid #ddd;
     background: #fff;
     overflow: hidden;
@@ -387,7 +387,6 @@ export default {
       display: inline-block;
       vertical-align: top;
       width:10%;
-      font-size:.5rem;
     }
     .line,
     .startMonth,
@@ -402,6 +401,7 @@ export default {
         line-height:1.4rem;
         padding-right:5px;
         padding-left:1rem;
+        font-size:.5rem;
       }
     }
     .endMonth{
