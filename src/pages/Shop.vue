@@ -29,10 +29,13 @@ export default {
     padding: 0;
     .nav-item {
       border-radius: .2rem;
-      margin:0 0 0 .5rem;
+      margin:0 0 0 .3rem;
       border: 1px solid $primary-color;
       background: #fff;
       width: 14vw;
+      &:first-child{
+        margin-left: .5rem;
+      }
       &.router-link-active {
         background-color: $primary-color;
       }

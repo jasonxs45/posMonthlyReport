@@ -379,6 +379,7 @@ export default {
   .month-select{
     width: 45vw !important;
     border:1px solid #ddd;
+    background: #fff;
     overflow: hidden;
     font-size:0;
     border-radius:.2rem;
