@@ -16,6 +16,7 @@ const ShopMain = r => require.ensure([], () => r(require('pages/shop/Main')), 'S
 const ShopAll = r => require.ensure([], () => r(require('pages/shop/All')), 'ShopAll')
 const ShopNew = r => require.ensure([], () => r(require('pages/shop/New')), 'ShopNew')
 const SingleShop = r => require.ensure([], () => r(require('pages/shop/SingleShop')), 'SingleShop')
+const SingleShopDaily = r => require.ensure([], () => r(require('pages/shop/SingleShopDaily')), 'SingleShopDaily')
 export default [
   {
     path: '/',
@@ -122,5 +123,10 @@ export default [
     path: '/shop/singleshop',
     name: 'singleshop',
     component: SingleShop
+  },
+  {
+    path: '/shop/singleshopdaily',
+    name: 'singleshopdaily',
+    component: SingleShopDaily
   }
 ]

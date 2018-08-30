@@ -1,5 +1,5 @@
 <template>
-  <div class="single-shop">
+  <div class="single-shop-daily">
     <div class="flexbox boxline">
       <div class="flexbox-item boxline-item">
         <div class="flexbox">
@@ -81,51 +81,127 @@
       </div>
     </div>
     <div class="month-select">
-      <el-date-picker v-model="selectedStartMonth" class="startMonth" type="month" format="yyyy年MM月"
-      placeholder="选择开始月" popper-class="datepick-pop"
-      clear-icon="none"
-      :clearable=false :editable=false
-      :picker-options="startPickerOptions"
-      @change="getSingleShopGrossSales"></el-date-picker>
-      <span class="line">-</span>
-      <el-date-picker v-model="selectedMonth" class="endMonth" type="month" format="yyyy年MM月"
-      clear-icon="none"
-      :clearable=false :editable=false
-      :picker-options="endPickerOptions"
-      placeholder="选择结束月" popper-class="datepick-pop"
-      @change="getSingleShopGrossSales"></el-date-picker>
+      <div class="month-head">选择年月</div>
+      <el-date-picker
+        v-model="selectedMonth"
+        class="endMonth"
+        type="month"
+        format="yyyy年MM月"
+        clear-icon="none"
+        :clearable=false
+        :editable=false
+        placeholder="选择结束月"
+        popper-class="datepick-pop"
+        @change="getSingleShopMonthInfo">
+      </el-date-picker>
     </div>
     <div class="content">
       <div class="detail-statistics-echart" ref="detaildataechart"></div>
+      <div class="datas">
+        <div class="wrapper">
+          <div class="flexbox summuryData">
+            <div class="flexbox-item">
+              <div class="flexbox">
+                <div class="statichead">本月营业额：</div>
+                <div class="statics">{{summaries}}</div>
+              </div>
+            </div>
+            <div class="flexbox-item">
+              <div class="flexbox">
+                <div class="statichead">面积：</div>
+                <div class="statics">{{area|thousand}}㎡</div>
+              </div>
+            </div>
+          </div>
+          <div class="flexbox summuryData">
+            <div class="flexbox-item">
+              <div class="flexbox">
+                <div class="statichead">30天月化坪效：</div>
+                <div class="statics">{{areaeffect|thousand}}</div>
+              </div>
+            </div>
+            <div class="flexbox-item">
+              <div class="flexbox">
+                <div class="statichead">本月预算：</div>
+                <div class="statics">{{saletarget|thousand}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="flexbox summuryData">
+            <div class="flexbox-item">
+              <div class="flexbox">
+                <div class="statichead">客单价：</div>
+                <div v-if="customerprice !== - 1" class="statics">{{customerprice|thousand}}</div>
+                <div v-else class="statics">--</div>
+              </div>
+            </div>
+            <div class="flexbox-item">
+              <div class="flexbox">
+                <div class="statichead">本月预算完成率：</div>
+                <div class="statics">{{salerate}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div v-if="tableData" class="fktable" ref="fktable">
+        <div class="table-wrapper extra" ref="extraThead" :class="fixThead?'fixed':''">
+          <div class="thead">
+            <table class="mytable mytable1">
+              <colgroup>
+                <col width="20%" />
+                <col width="18%" />
+                <col width="12%" />
+                <col width="12%" />
+                <col width="38%" />
+              </colgroup>
+              <thead class="thead">
+                <tr>
+                  <th><div>日期</div></th>
+                  <th><div>营业额</div></th>
+                  <th><div>进店<br/>人数</div></th>
+                  <th><div>客数</div></th>
+                  <th><div>备注</div></th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="mytable">
-            <thead class="thead">
+            <colgroup>
+              <col width="20%" />
+              <col width="18%" />
+              <col width="12%" />
+              <col width="12%" />
+              <col width="38%" />
+            </colgroup>
+            <thead class="thead" ref="thead">
               <tr>
                 <th>
-                  <div>月份</div>
+                  <div>日期</div>
                 </th>
                 <th>
                   <div>营业额<br/>(元)</div>
                 </th>
                 <th>
-                  <div>月化坪效<br/>(元/㎡)</div>
+                  <div>进店<br/>人数</div>
                 </th>
                 <th>
-                  <div>同比</div>
+                  <div>客数</div>
                 </th>
                 <th>
-                  <div>环比</div>
+                  <div>备注</div>
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in usedTableData" :key="item+'-'+index">
-                <td @click="checkDaily"><div>{{item.month}}</div></td>
-                <td><div>{{item.grosssales|thousand}}</div></td>
-                <td><div>{{item.effect|thousand}}</div></td>
-                <td><div>{{item.yearlasymonth}}</div></td>
-                <td><div>{{item.lastmonth}}</div></td>
+                <td><div>{{item.Date}}<p :class="item.WeekDay === '六' || item.WeekDay === '日' ? 'color' : ''">周{{item.WeekDay}}</p></div></td>
+                <td><div>{{item.GrossSales|thousand}}</div></td>
+                <td><div>{{item.GuestNum|thousand}}</div></td>
+                <td><div>{{item.GuestOrder|thousand}}</div></td>
+                <td><div>{{item.Remarks}}</div></td>
               </tr>
             </tbody>
           </table>
@@ -140,14 +216,14 @@ import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls, position } from 'common/js/config'
 import { formatNumber } from 'common/js/util'
-import { formatDate, getPrevMonth } from 'common/js/date'
+import { formatDate, getPrevMonth, transferWeek } from 'common/js/date'
 let echarts = require('echarts/lib/echarts')
 require('echarts/lib/chart/line')
 require('echarts/lib/component/dataset')
 require('echarts/lib/component/tooltip')
 require('echarts/lib/component/legend')
 export default {
-  name: 'single-shop',
+  name: 'single-shop-daily',
   data () {
     return {
       malls,
@@ -160,7 +236,14 @@ export default {
       selectedMonth: '',
       selectedStartMonth: '',
       tableData: null,
-      dataset: null
+      dataset: null,
+      areaeffect:'',
+      customerprice:'',
+      saletarget:'',
+      area: '',
+      salerate:'',
+      fixThead:false,
+      summaries: ''
     }
   },
   computed: {
@@ -218,15 +301,6 @@ export default {
         return formatDate(new Date(half), 'yyyy-MM')
       }
     },
-    startPickerOptions () {
-      let _self = this
-      return {
-        disabledDate (time) {
-          let minDate = new Date('2017/01')
-          return time.getTime() < minDate.getTime() || time.getTime() > new Date(_self.endMonth).getTime()
-        }
-      }
-    },
     endPickerOptions () {
       let _self = this
       return {
@@ -238,17 +312,15 @@ export default {
     },
     usedTableData () {
       let arr = []
-      if (this.tableData && this.tableData.month) {
-        for (let i = 0; i < this.tableData.month.length; i++) {
-          arr.push({
-            month: this.tableData.month[i],
-            grosssales: this.tableData.grosssales[i],
-            effect: this.tableData.effect[i],
-            yearlasymonth: (this.tableData.yearlasymonth[i] * 100).toFixed(0) + '%',
-            lastmonth: (this.tableData.lastmonth[i] * 100).toFixed(0) + '%'
-          })
-        }
+      if (this.tableData) {
+        arr = this.tableData.map(item => {
+          let date = new Date(item.Date)
+          item.Date = formatDate(date, 'yy/MM/dd')
+          item.WeekDay = transferWeek(date.getDay())
+          return item
+        })
       }
+      console.log(arr)
       return arr
     },
     detaildataechart () {
@@ -256,6 +328,9 @@ export default {
     },
     echart () {
       return echarts.init(this.detaildataechart)
+    },
+    thead () {
+      return this.$refs.thead
     }
   },
   filters: {
@@ -269,7 +344,7 @@ export default {
     this.selectedMonth = getPrevMonth()
     this.selectedStartMonth = this.startMonth
     this.getLocationShopList()
-    this.getSingleShopGrossSales()
+    this.getSingleShopMonthInfo()
   },
   methods: {
     _getShopInfo () {
@@ -289,29 +364,36 @@ export default {
         console.log(err)
       })
     },
-    _getSingleShopGrossSales () {
+    _getSingleShopMonthInfo () {
       let opt = {
-        v: 'Get_SingleShopGrossSales',
+        v: 'Get_SingleShop_MonthInfo',
         shopid: this.shopid,
-        month1: this.startMonth,
-        month2: this.endMonth
+        month: this.startMonth
       }
       return api.query(opt)
     },
-    getSingleShopGrossSales () {
+    getSingleShopMonthInfo () {
       let layerindex = layer.loading('加载中')
-      this._getSingleShopGrossSales().then(res => {
+      this._getSingleShopMonthInfo().then(res => {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
-          let source = res.data.Data
-          this.tableData = source
-          source.Days = source.month
-          source.GrossSales = source.grosssales.map(item => Math.round(item))
+          let result = res.data.Data
+          this.summaries = result.GrossSales
+          this.areaeffect = result.Effect
+          this.customerprice = result.UnitPrice
+          this.saletarget = result.Targets
+          this.salerate = result.Targets ? (100 * Number(result.GrossSales) / Number(result.Targets)).toFixed(1) + '%' : '0.0%'
+          this.saletarget = this.saletarget
+          this.area = result.Area
           this.dataset = {
             source: {
-              '月份': source.Days,
-              '营业额': source.GrossSales
+              '日期': result.DayList.map(item => formatDate(new Date(item.Date), 'dd')),
+              '营业额': result.DayList.map(item => item.GrossSales)
             }
+          }
+          this.tableData = result.DayList
+          if (this.tableData.length > 0) {
+            this.listenScroll()
           }
           this.initEchart()
         }
@@ -352,7 +434,7 @@ export default {
       let shop = this.shops.find(item => item.ShopID === this.shopid)
       this.shopinfo.Location = shop.Location || this.shopinfo.Location
       this.shopinfo.ShopCategory = shop.ShopCategory || this.shopinfo.ShopCategory
-      this.getSingleShopGrossSales()
+      this.getSingleShopMonthInfo()
     },
     locationChange () {
       this.shopid = ''
@@ -392,7 +474,7 @@ export default {
         },
         yAxis: [
           {
-            name: '营业额\n(万元)',
+            name: '营业额\n(千元)',
             type: 'value',
             splitLine: {
               lineStyle: {
@@ -402,7 +484,7 @@ export default {
             },
             axisLabel: {
               formatter (value, index) {
-                return value / 10000
+                return value / 1000
               },
               fontSize: 8
             }
@@ -421,11 +503,14 @@ export default {
       this.dataset.source['营业额'] = []
       this.initEchart()
     },
-    checkDaily () {
-      this.$router.push({
-        name: 'singleshopdaily',
-        query: {
-          id: this.shopid
+    listenScroll () {
+      this.$nextTick(() => {
+        window.onscroll = () => {
+          if (this.thead.getBoundingClientRect().top <= 0) {
+            this.fixThead = true
+          } else {
+            this.fixThead = false
+          }
         }
       })
     }
@@ -461,7 +546,7 @@ export default {
     font-size: .5rem;
   }
 }
-.single-shop {
+.single-shop-daily {
   width:100%;
   background: #fff;
   .shop-info{
@@ -486,6 +571,13 @@ export default {
     margin: p2r(30) 0;
     padding:0 .5rem;
     font-size: 0;
+    .month-head{
+      display: inline-block;
+      font-size: .5rem;
+      height: 1.4rem;
+      line-height: 1.4rem;
+      margin-right: .7rem;
+    }
     .line{
       display: inline-block;
       vertical-align: top;
@@ -530,7 +622,29 @@ export default {
     width:100%;
     height:11rem;
   }
+  .datas{
+    .wrapper{
+      margin-left: -.5rem;
+      margin-right: -.5rem;
+      background: #f5f5f5;
+      padding:0.25rem 0;
+      .summuryData{
+        .flexbox-item{
+          padding: .25rem;
+          .statichead{
+            color:#333;
+            font-weight: 600;
+          }
+          .statics{
+            color:#f28227;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
   .fktable{
+    margin-top: .5rem;
     margin-left: -.5rem;
     margin-right: -.5rem;
     margin-bottom: -.5rem;
@@ -538,6 +652,17 @@ export default {
     overflow: hidden;
     .table-wrapper{
       width: 100%;
+      &.extra{
+        display: none;
+        &.fixed{
+          position: fixed;
+          top:0;
+          left:0;
+          width: 100%;
+          display: block;
+          z-index: 999;
+        }
+      }
       .mytable {
         width:100%;
         tr{
@@ -552,6 +677,13 @@ export default {
             div{
               padding:.6rem .3rem;
               vertical-align: middle;
+              p{
+                margin-top: .3rem;
+                &.color{
+                  color:#f28227;
+                  font-weight: 600;
+                }
+              }
             }
             &:last-child{
               border-right: none;
@@ -562,7 +694,6 @@ export default {
             &:first-child{
               div{
                 text-align: center;
-                text-decoration: underline;
               }
             }
           }

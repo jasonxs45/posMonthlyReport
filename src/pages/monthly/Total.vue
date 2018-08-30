@@ -11,7 +11,7 @@
         <h3 class="point-title"><span class="text">每日变化</span></h3>
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
-      <h3 class="point-title"><span class="text">环比与同比</span></h3>
+      <h3 class="point-title"><span class="text">同比与环比</span></h3>
       <div class="table">
         <table class="table-wrapper">
           <thead>

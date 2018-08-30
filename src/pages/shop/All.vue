@@ -107,7 +107,7 @@
               <tbody>
                 <tr v-for="(item, index) in usedTableData" :key="item.monthdate+'---'+index">
                   <td><div>{{index+1}}</div></td>
-                  <td><div>{{item.ShopName}}</div></td>
+                  <td><div class="underline">{{item.ShopName}}</div></td>
                   <td><div>{{item.Location}}</div></td>
                   <td><div>{{item.ShopCategory}}</div></td>
                   <td><div>{{item.Area|thousand}}</div></td>
@@ -184,7 +184,7 @@
             <tbody>
               <tr v-for="(item, index) in usedTableData" :key="item.monthdate+'-'+index">
                 <td><div>{{index+1}}</div></td>
-                <td><div>{{item.ShopName}}</div></td>
+                <td><div class="underline">{{item.ShopName}}</div></td>
                 <td><div>{{item.Location}}</div></td>
                 <td><div>{{item.ShopCategory}}</div></td>
                 <td><div>{{item.Area|thousand}}</div></td>
@@ -260,7 +260,7 @@
             <tbody>
               <tr v-for="(item, index) in usedTableData" :key="item.monthdate+'--'+index">
                 <td><div>{{index+1}}</div></td>
-                <td><div>{{item.ShopName}}</div></td>
+                <td @click="checkSingleShop(item.ShopID)"><div class="underline">{{item.ShopName}}</div></td>
                 <td><div>{{item.Location}}</div></td>
                 <td><div>{{item.ShopCategory}}</div></td>
                 <td><div>{{item.Area|thousand}}</div></td>
@@ -490,6 +490,14 @@ export default {
           }
         }
       })
+    },
+    checkSingleShop (id) {
+      this.$router.push({
+        name: 'singleshop',
+        query: {
+          id
+        }
+      })
     }
   }
 }
@@ -513,6 +521,13 @@ export default {
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
       height: 1.6rem;
+      &::-webkit-scrollbar-track-piece{
+        background-color: rgba(125, 125, 125, 0);
+      }
+      &::-webkit-scrollbar-thumb:horizontal {
+        width: 1px;
+        background-color: rgba(125, 125, 125, 0.1);
+      }
     }
     .filt{
       display: inline-block;
@@ -726,6 +741,9 @@ export default {
         }
       }
     }
+  }
+  .underline{
+    text-decoration: underline;
   }
 }
 </style>

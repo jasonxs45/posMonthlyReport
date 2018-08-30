@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="mall-controller">
+    <div v-show="$route.name !== 'singleshop' && $route.name !== 'singleshopdaily'" class="mall-controller">
       <span class="head">项目选择：</span>
       <el-select
         v-model="activeMallIndex"
@@ -17,7 +17,7 @@
         </el-option>
       </el-select>
     </div>
-    <div class="tab-navs">
+    <div v-show="$route.name !== 'singleshop' && $route.name !== 'singleshopdaily'" class="tab-navs">
       <router-link tag="div" class="nav-item" to="/overview">
         概览
       </router-link>
@@ -68,6 +68,9 @@ export default {
 
 <style lang="scss">
 @import '~common/scss/variables';
+.flexbox{
+  display: flex;
+}
 #app {
   color: #333;
   .mall-controller{

@@ -9,12 +9,6 @@
     <div class="content">
       <div class="detail-statistics">
         <h3 class="point-title"><span class="text">业态配比</span></h3>
-        <div class="effacttype-switch">
-          <label class="dot" v-for="(item, index) in compareType" :key="item.name">
-            <input type="radio" name="compareType" :value="index" :checked="index===parseInt(activeTypeIndex)" @change="radioChange"/>
-            <span class="text">{{item.name}}</span>
-          </label>
-        </div>
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
       <h3 class="point-title"><span class="text">各业态月度对比</span></h3>
@@ -106,7 +100,7 @@ import layer from 'common/js/layer'
 import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls } from 'common/js/config'
-import { formatNumber, handleRate, color } from 'common/js/util'
+import { formatNumber, handleRate, color, lightenDarkenColor } from 'common/js/util'
 import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
 let pieItemstyle = []
@@ -120,33 +114,17 @@ for (let i = 0; i < color.length; i++) {
   pieItemstyle.push(item)
 }
 const grids = [
-  {title: '面积 ', x: '25%', y: 0, y1: 90, radius: 60},
-  {title: '营业额', x: '75%', y: 0, y1: 90, radius: 60},
-  {title: '30天月化坪效', x: '10%', y: 150, y1: 190, width: '80%', height: 80}
+  {title: '面积 ', x: '25%', y: 20, y1: 110, radius: 60},
+  {title: '营业额', x: '75%', y: 20, y1: 110, radius: 60},
+  {title: '30天月化坪效', x: '10%', y: 170, y1: 210, width: '80%', height: 80}
 ]
 export default {
   name: 'type-total',
   data () {
     return {
       malls: malls,
-      compareType: [
-        {
-          typeId: 0,
-          name: '本月'
-        },
-        {
-          typeId: 1,
-          name: '去年同期'
-        },
-        {
-          typeId: 1,
-          name: '上月'
-        }
-      ],
-      activeTypeIndex: 0,
       tableData: {},
-      originEchartData: null,
-      echart: {}
+      originEchartData: []
     }
   },
   computed: {
@@ -178,33 +156,59 @@ export default {
     usedTableData () {
       return this.tableData
     },
+    echart () {
+      return echarts.init(this.$refs.detaildataechart)
+    },
     usedEchartData () {
+      let curMonthData = this.originEchartData[0]
+      let lastYearData = this.originEchartData[1]
+      let lastMonthData = this.originEchartData[2]
       let data = {
         area: [],
         sales: [],
-        effact: []
+        effact: [],
+        lastYearEffact: [],
+        lastMonthEffact: []
       }
-      for (let i = 0; i < this.originEchartData.Operation.length; i++) {
+      for (let i = 0; i < curMonthData.Operation.length; i++) {
         data.area.push(
           {
-            value: this.originEchartData.Area[i].toFixed(0),
-            name: this.originEchartData.Operation[i],
+            value: curMonthData.Area[i].toFixed(0),
+            name: curMonthData.Operation[i],
             itemStyle: pieItemstyle[i]
           }
         )
         data.sales.push(
           {
-            value: this.originEchartData.Sales[i].toFixed(0),
-            name: this.originEchartData.Operation[i],
+            value: curMonthData.Sales[i].toFixed(0),
+            name: curMonthData.Operation[i],
             itemStyle: pieItemstyle[i]
           }
         )
         data.effact.push(
           {
-            value: this.originEchartData.Effect[i],
-            name: this.originEchartData.Operation[i],
+            value: curMonthData.Effect[i],
+            name: curMonthData.Operation[i],
             itemStyle: {
               color: pieItemstyle[i].color
+            }
+          }
+        )
+        data.lastYearEffact.push(
+          {
+            value: lastYearData.Effect[i],
+            name: lastYearData.Operation[i],
+            itemStyle: {
+              color: lightenDarkenColor(pieItemstyle[i].color, 40)
+            }
+          }
+        )
+        data.lastMonthEffact.push(
+          {
+            value: lastMonthData.Effect[i],
+            name: lastMonthData.Operation[i],
+            itemStyle: {
+              color: lightenDarkenColor(pieItemstyle[i].color, 80)
             }
           }
         )
@@ -273,30 +277,37 @@ export default {
         console.log(err)
       })
     },
-    getEchartData () {
-      let date = this.activeTypeIndex === 0
-                 ? this.endMonth
-                 : this.activeTypeIndex === 1
-                 ? (parseInt(this.endMonth.split('-')[0]) - 1) + '/' + this.endMonth.split('-')[1]
-                 : getPrevMonth(this.endMonth)
+    _fetchEchart (date) {
       let opt = {
         v: 'Get_OperationSales_Chart',
         month: date,
         MallID: this.malls[this.activeMallIndex].mallid
       }
+      return api.query(opt)
+    },
+    getEchartData () {
+      // 本月
+      let curMonth = this.endMonth
+      // 去年同期
+      let lastYearMonth = (parseInt(this.endMonth.split('-')[0]) - 1) + '/' + this.endMonth.split('-')[1]
+      // 上月
+      let lastMonth = getPrevMonth(this.endMonth)
       let layerindex = layer.loading('加载中')
-      api.query(opt).then((res) => {
+      Promise.all([
+        this._fetchEchart(curMonth),
+        this._fetchEchart(lastYearMonth),
+        this._fetchEchart(lastMonth)
+      ]).then(res => {
         layer.close(layerindex)
-        if (res.data.ErrorCode === 0) {
-         this.originEchartData = res.data.Data
-         this.initEchart()
-        }
-      }).catch((err) => {
+        let resArr = res.map(item => item.data.Data)
+        this.originEchartData = resArr
+        this.initEchart()
+      }).catch(err => {
+        layer.close(layerindex)
         console.log(err)
       })
     },
     initEchart () {
-      this.echart = echarts.init(this.$refs.detaildataechart)
       let itemStyle = {
         emphasis: {
           shadowBlur: 10,
@@ -330,6 +341,7 @@ export default {
         }
         title.push(tit)
       }
+      let legendTitle = this.usedEchartData.area.map(item => item.name)
       let series = [
         {
           name: title[0].text,
@@ -339,7 +351,14 @@ export default {
           data: this.usedEchartData.area,
           itemStyle,
           label,
-          labelLine
+          labelLine,
+          tooltip: {
+            formatter (params) {
+              return `${params.seriesName}<br/>
+                      ${params.marker + params.name}:${formatNumber(params.value, 0, 1)}<br/>
+                      ${params.percent ? '占比:' + params.percent.toFixed(0) + '%' : ''}`
+            }
+          }
         },
         {
           name: title[1].text,
@@ -349,21 +368,44 @@ export default {
           data: this.usedEchartData.sales,
           itemStyle,
           label,
-          labelLine
+          labelLine,
+          tooltip: {
+            formatter (params) {
+              return `${params.seriesName}<br/>
+                      ${params.marker + params.name}:${formatNumber(params.value, 0, 1)}<br/>
+                      ${params.percent ? '占比:' + params.percent.toFixed(0) + '%' : ''}`
+            }
+          }
         },
         {
+          name: '本月',
           type: 'bar',
           data: this.usedEchartData.effact,
-          barWidth: 30,
           itemStyle,
           label,
           labelLine
+        },
+        {
+          name: '去年同期',
+          type: 'bar',
+          data: this.usedEchartData.lastYearEffact
+        },
+        {
+          name: '上月',
+          type: 'bar',
+          data: this.usedEchartData.lastMonthEffact
         }
       ]
       // 绑定图例点击事件
       this.echart.on('legendselectchanged', params => {
         // 筛选柱状图 具体数值
         series[2].data = this.usedEchartData.effact.filter((item, index) => {
+          return Object.values(params.selected)[index] === true
+        })
+        series[3].data = this.usedEchartData.lastYearEffact.filter((item, index) => {
+          return Object.values(params.selected)[index] === true
+        })
+        series[4].data = this.usedEchartData.lastMonthEffact.filter((item, index) => {
           return Object.values(params.selected)[index] === true
         })
         this.echart.setOption({
@@ -378,45 +420,45 @@ export default {
         textStyle: {
           fontSize: 8
         },
-        tooltip : {
-          trigger: 'item',
+        tooltip: {
           formatter (params) {
-            return `${params.componentSubType === 'bar' ? title[2].text : params.seriesName}<br/>
-                    ${params.marker + params.name}:${formatNumber(params.value, 0, 1)}<br/>
-                    ${params.percent ? '占比:' + params.percent.toFixed(0) + '%' : ''}`
+            let title = '30天月化坪效'
+            let subTitle = params[0].axisValue
+            let para = ''
+            for (let i = 0; i < params.length; i++) {
+              para += `${params[i].marker + params[i].seriesName}：${formatNumber(params[i].value, 0, 1)}<br/>`
+            }
+            return `${title}<br/>${subTitle}<br/>${para}`
           }
         },
         legend: {
           type: 'scroll',
           left: 'center',
-          top: 300,
+          top: 320,
           data: this.usedEchartData.area.map(item => item.name),
           itemHeight: 8
         },
-        grid: [
-          {
-            top: grids[2].y1,
-            left: grids[2].x,
-            width: grids[2].width,
-            height: grids[2].height
+        grid: {
+          top: grids[2].y1,
+          left: grids[2].x,
+          width: grids[2].width,
+          height: grids[2].height,
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
           }
-        ],
+        },
         xAxis: {
           type: 'category',
-          show: false,
+          show: true,
           boundaryGap: true,
           axisLabel: {
             fontSize: 8
           },
-          splitLine: {
-            show: true,
-            interval: 3,
-            lineStyle: {
-              color: '#000'
-            }
-          },
           gridIndex: 0,
-          data: this.usedEchartData.area.map(item => item.name)
+          data: legendTitle
         },
         yAxis: [
           {
@@ -443,11 +485,6 @@ export default {
           type
         }
       })
-    },
-    radioChange (e) {
-      this.activeTypeIndex = parseInt(e.target.value)
-      this.getEchartData()
-      // this.getStatistics()
     }
   }
 }

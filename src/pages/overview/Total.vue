@@ -24,7 +24,7 @@
         <div class="open-rate-echart" ref="openrateechart"></div>
       </div>
       <div class="detail-statistics">
-        <h3 class="point-title"><span class="text">客/车流及营业额</span></h3>
+        <h3 class="point-title"><span class="text">客流量及营业额</span></h3>
         <div class="detail-statistics-echart" ref="detaildataechart"></div>
       </div>
       <div class="table">
@@ -44,12 +44,12 @@
               v-for="(item, index) in usedTableData.Month"
               :key="'item-'+index+Math.random().toString(36).substr(2)"
             >
-              <td>{{item}}</td>
-              <td>{{usedTableData.OpeningRate[index]}}</td>
-              <td>{{usedTableData.KNum[index]}}</td>
-              <td>{{usedTableData.CNum[index]}}</td>
-              <td>{{usedTableData.GrossSales[index]}}</td>
-              <td>{{usedTableData.Effact[index]}}</td>
+              <td class="line" @click="checkMonth(item)">{{item}}</td>
+              <td v-html="usedTableData.OpeningRate[index]"></td>
+              <td v-html="usedTableData.KNum[index]"></td>
+              <td v-html="usedTableData.CNum[index]"></td>
+              <td v-html="usedTableData.GrossSales[index]"></td>
+              <td v-html="usedTableData.Effact[index]"></td>
             </tr>
           </tbody>
         </table>
@@ -62,8 +62,8 @@ import layer from 'common/js/layer'
 import 'common/scss/layer.css'
 import api from 'common/api'
 import { malls, position } from 'common/js/config'
-import { formatNumber, color } from 'common/js/util'
-import { formatDate } from 'common/js/date'
+import { formatNumber } from 'common/js/util'
+import { formatDate, getPrevMonth } from 'common/js/date'
 import echarts from 'echarts'
 require('echarts/lib/chart/line')
 
@@ -72,13 +72,12 @@ export default {
   data () {
     return {
       eldate: '',
-      malls: malls,
+      malls,
       selectedStartMonth: '',
+      wholeData: [],
       tableData: null,
       originOpenData: {},
-      openRateEchart: {},
-      originDetailData: {},
-      detailDataEchart: {}
+      originDetailData: {}
     }
   },
   computed: {
@@ -103,59 +102,120 @@ export default {
       return formatDate(date, 'yyyy-MM')
     },
     startMonth () {
-      if (this.selectedStartMonth) {
-        return formatDate(new Date(this.selectedStartMonth), 'yyyy-MM')
-      } else {
-        let date = new Date(this.selectedMonth)
-        let half = date.setMonth(date.getMonth() - 5)
+      if (!this.selectedStartMonth) {
+        let date = new Date(this.endMonth)
+        let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
+        let half = date.setMonth(dis)
         return formatDate(new Date(half), 'yyyy-MM')
+      } else {
+        return formatDate(new Date(this.selectedStartMonth), 'yyyy-MM')
       }
     },
     startPickerOptions () {
       let _self = this
       return {
         disabledDate (time) {
-          let minDate = new Date('2017/01')
+          let minDate = new Date(_self.endMonth)
+          let year = minDate.getFullYear()
+          let month = '01'
+          minDate = new Date(year + '/' + month)
           return time.getTime() < minDate.getTime() || time.getTime() > new Date(_self.endMonth).getTime()
         }
       }
     },
     endPickerOptions () {
-      let _self = this
+      let prevMonth = getPrevMonth()
       return {
         disabledDate (time) {
-          let minDate = new Date(_self.startMonth)
-          return time.getTime() < minDate.getTime()
+          let maxDate = new Date(prevMonth).getTime()
+          return time.getTime() > maxDate
         }
       }
     },
     usedTableData () {
-      return this.tableData
+      let curData = {}
+      let comparedData = {}
+      Object.assign(
+        curData,
+        {
+          ...this.wholeData[0],
+          Effact: [],
+          EffactRate: [],
+          KNumRate: [],
+          CNumRate: [],
+          GrossSalesRate: []
+        }
+      )
+      Object.assign(comparedData, {...this.wholeData[1], Effact: []})
+      if (curData.CNum) {
+        for (let i = 0; i < curData.Month.length; i++) {
+          let curEffact = curData.GrossSales[i] / curData.OpeningArea[i]
+          let comparedEffact = comparedData.GrossSales[i] / comparedData.OpeningArea[i]
+          let effactRate = this.handleRate(curEffact, comparedEffact)
+          curEffact = formatNumber(curEffact, 0, 1)
+          let kNumRate = this.handleRate(curData.KNum[i], comparedData.KNum[i])
+          let cNumRate = this.handleRate(curData.CNum[i], comparedData.CNum[i])
+          let grossSalesRate = this.handleRate(curData.GrossSales[i], comparedData.GrossSales[i])
+          curData.OpeningRate[i] = (curData.OpeningRate[i] * 100).toFixed(1)
+          curData.KNum[i] = formatNumber(curData.KNum[i], 0, 1) + '<br/>' + kNumRate
+          curData.CNum[i] = formatNumber(curData.CNum[i], 0, 1) + '<br/>' + cNumRate
+          curData.GrossSales[i] = formatNumber(curData.GrossSales[i] / 1000000, 1, 1) + '<br/>' + grossSalesRate
+          curData.Effact.push(curEffact + '<br/>' + effactRate)
+          comparedData.Effact.push(comparedEffact)
+        }
+      }
+      return curData
     },
     usedOpenData () {
-      let xlabel = this.originOpenData.Month
-      let series = []
-      for (let i = 0; i < this.originOpenData.OpeningRate.length; i++) {
-        series.push((this.originOpenData.OpeningRate[i] * 100).toFixed(1))
+      let xlabel = this.wholeData[0].Month
+      let curSeries = []
+      let comparedSeries = []
+      for (let i = 0; i < this.wholeData[0].OpeningRate.length; i++) {
+        curSeries.push((this.wholeData[0].OpeningRate[i] * 100).toFixed(1))
+        comparedSeries.push((this.wholeData[1].OpeningRate[i] * 100).toFixed(1))
       }
       return {
         xlabel,
-        series
+        curSeries,
+        comparedSeries
       }
     },
     usedDetailData () {
-      let xlabel = this.originDetailData.Month
-      let series = {
-        grosssale: this.originDetailData.GrossSales.map(num => {
+      let xlabel = this.wholeData[0].Month
+      let curSeries = {
+        grosssale: this.wholeData[0].GrossSales.map(num => {
           return num.toFixed(0)
         }),
-        knum: this.originDetailData.KNum,
-        cnum: this.originDetailData.CNum
+        knum: this.wholeData[0].KNum,
+        cnum: this.wholeData[0].CNum
+      }
+      let comparedSeries = {
+        grosssale: this.wholeData[1].GrossSales.map(num => {
+          return num.toFixed(0)
+        }),
+        knum: this.wholeData[1].KNum,
+        cnum: this.wholeData[1].CNum
       }
       return {
         xlabel,
-        series
+        curSeries,
+        comparedSeries
       }
+    },
+    openRateEchart () {
+      return echarts.init(this.$refs.openrateechart)
+    },
+    detailDataEchart () {
+      return echarts.init(this.$refs.detaildataechart)
+    },
+    comparedYear () {
+      return new Date(this.endMonth).getFullYear()
+    },
+    comparedStart () {
+      return (this.comparedYear - 1) + this.startMonth.substr(4)
+    },
+    comparedEnd () {
+      return (this.comparedYear - 1) + this.endMonth.substr(4)
     }
   },
   filters: {
@@ -163,11 +223,35 @@ export default {
       return formatNumber(num, 0, 1)
     }
   },
-  components: {
-  },
   watch: {
     activeMallIndex (newVal, oldVal) {
       this.totalQueries()
+    },
+    selectedMonth (newVal, oldVal) {
+      let startYear = new Date(this.selectedStartMonth).getFullYear()
+      let startMonth = new Date(this.selectedStartMonth).getMonth() + 1
+      let endYear = new Date(newVal).getFullYear()
+      let endMonth = new Date(newVal).getMonth() + 1
+      if (startYear === endYear) {
+        if (startMonth <= endMonth) {
+          console.log(12)
+        } else {
+          let date = new Date(newVal)
+          let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
+          let half = date.setMonth(dis)
+          this.selectedStartMonth = formatDate(new Date(half), 'yyyy-MM')
+        }
+      } else if (startYear < endYear) {
+        let date = new Date(newVal)
+        let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
+        let half = date.setMonth(dis)
+        this.selectedStartMonth = formatDate(new Date(half), 'yyyy-MM')
+      } else {
+        let date = new Date(newVal)
+        let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
+        let half = date.setMonth(dis)
+        this.selectedStartMonth = formatDate(new Date(half), 'yyyy-MM')
+      }
     }
   },
   created () {
@@ -175,79 +259,70 @@ export default {
     this.totalQueries()
   },
   methods: {
+    handleRate (item, comparedItem) {
+      let rate = ''
+      if (comparedItem) {
+        rate = Math.round(100 * (item - comparedItem) / comparedItem)
+        rate = rate > 0 ? `<span class="incre">(+${rate}%)</span>` : `<span class="decre">(${rate}%)</span>`
+      } else {
+        rate = '<span class="down">(--)</span>'
+      }
+      return rate
+    },
     totalQueries () {
       this.getStatistics()
-      this.getOpenRate()
-      this.getDetailStatistics()
+    },
+    _fetchStatic (start, end) {
+      let opt = {
+        v: 'NewGetOverViewData',
+        month1: start,
+        month2: end,
+        MallID: this.malls[this.activeMallIndex].mallid
+      }
+      return api.query(opt)
     },
     getStatistics () {
-      let opt = {
-          v: 'NewGetOverViewData',
-          month1: this.startMonth,
-          month2: this.endMonth,
-          MallID: this.malls[this.activeMallIndex].mallid
-      }
       let layerindex = layer.loading('加载中')
-      api.query(opt).then((res) => {
+      let curStart = this.startMonth
+      let curEnd = this.endMonth
+      let comparedStart = this.comparedStart
+      let comparedEnd = this.comparedEnd
+      Promise.all([
+        this._fetchStatic(curStart, curEnd),
+        this._fetchStatic(comparedStart, comparedEnd)
+      ]).then(res => {
         layer.close(layerindex)
-        if (res.data.ErrorCode === 0) {
-          let tableData = res.data.Data
-          tableData.Effact = []
-          for (let i = 0; i < tableData.Month.length; i++) {
-            let effact = Math.round(30 * tableData.GrossSales[i] / tableData.OpeningArea[i])
-            effact = formatNumber(effact, 0, 1)
-            tableData.Effact.push(effact)
-            tableData.OpeningRate[i] = (tableData.OpeningRate[i] * 100).toFixed(1)
-            tableData.GrossSales[i] = formatNumber(tableData.GrossSales[i] / 1000000, 1, 1)
-            tableData.KNum[i] = formatNumber(tableData.KNum[i], 0, 1)
-            tableData.CNum[i] = formatNumber(tableData.CNum[i], 0, 1)
-          }
-          this.tableData = tableData
-        }
+        let resArr = res.map(item => item.data.Data)
+        this.wholeData = resArr
+        this.initOpenRateEchart()
+        this.initDetailDataEchart()
       }).catch((err) => {
+        layer.close(layerindex)
         console.log(err)
       })
     },
-    getOpenRate () {
-      // 获取数据
+    _fetchOpenRate (start, end) {
       let opt = {
         v: 'GetOpeningRate',
-        month1: this.startMonth,
-        month2: this.endMonth,
+        month1: start,
+        month2: end,
         MallID: this.malls[this.activeMallIndex].mallid
       }
-      let layerindex = layer.loading('加载中')
-      api.query(opt).then((res) => {
-        layer.close(layerindex)
-        if (res.data.ErrorCode === 0) {
-          this.originOpenData = res.data.Data
-          this.initOpenRateEchart()
-        }
-      }).catch((err) => {
-        console.log(err)
-      })
+      return api.query(opt)
     },
-    getDetailStatistics () {
+    _fetchDetailStatics (start, end) {
       let opt = {
         v: 'GetGrossSalesAndCK',
-        month1: this.startMonth,
-        month2: this.endMonth,
+        month1: start,
+        month2: end,
         MallID: this.malls[this.activeMallIndex].mallid
       }
-      let layerindex = layer.loading('加载中')
-      api.query(opt).then((res) => {
-        layer.close(layerindex)
-        if (res.data.ErrorCode === 0) {
-          this.originDetailData = res.data.Data
-          this.initDetailDataEchart()
-        }
-      }).catch((err) => {
-        console.log(err)
-      })
+      return api.query(opt)
     },
     initOpenRateEchart () {
-      this.openRateEchart = echarts.init(this.$refs.openrateechart)
+      let legends = [`${this.comparedYear - 1}`, `${this.comparedYear}`]
       this.openRateEchart.setOption({
+        color: ['#ffc2c2', '#ff0000'],
         grid: {
           top: 40
         },
@@ -255,12 +330,17 @@ export default {
           trigger: 'axis',
           position,
           formatter (params) {
-            return `${params[0].axisValue}<br/>${params[0].marker}${params[0].seriesName}：${params[0].value}%`
+            let tit = params[0].axisValue
+            let content = ''
+            for (let i = 0; i < params.length; i++) {
+              content += `${params[i].marker}${params[i].seriesName}：${parseFloat(params[i].value).toFixed(2)}%<br/>`
+            }
+            return `${tit}<br/>${content}`
           }
         },
         legend: {
           type: 'scroll',
-          data: ['开业率'],
+          data: legends,
           bottom: 5,
           itemHeight: 8
         },
@@ -287,29 +367,39 @@ export default {
           min: 60,
           max: 100
         },
-        series: {
-          name: '开业率',
-          type: 'line',
-          data: this.usedOpenData.series
-        }
+        series: [
+          {
+            name: legends[0],
+            type: 'line',
+            data: this.usedOpenData.curSeries
+          },
+          {
+            name: legends[1],
+            type: 'line',
+            data: this.usedOpenData.comparedSeries
+          }
+        ]
       })
     },
     initDetailDataEchart () {
-      this.detailDataEchart = echarts.init(this.$refs.detaildataechart)
+      let legends = [`${this.comparedYear - 1}客流量`, `${this.comparedYear}客流量`, `${this.comparedYear - 1}营业额`, `${this.comparedYear}营业额`]
       this.detailDataEchart.setOption({
-        color,
+        color: ['#4472c4', '#dae3f3', '#f8cdab', '#ed7d31'],
         grid: {
-          top: 40
+          top: 40,
+          bottom: 80
         },
         tooltip: {
           trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
           position
         },
         legend: {
-          type: 'scroll',
-          data: ['营业额', '车流量', '客流量'],
-          bottom: 5,
-          itemHeight: 8
+          width: '70%',
+          data: legends,
+          bottom: 5
         },
         textStyle: {
           fontSize: 8
@@ -335,7 +425,7 @@ export default {
           },
           {
             type: 'value',
-            name: '客/车流量\n(千次)',
+            name: '客流量\n(千次)',
             splitLine: {
               show: false
             },
@@ -347,24 +437,37 @@ export default {
             }
           }
         ],
-        series: [{
-            name: '营业额',
+        series: [
+          {
+            name: legends[0],
+            type: 'bar',
+            yAxisIndex: 1,
+            data: this.usedDetailData.comparedSeries.knum
+          },
+          {
+            name: legends[1],
+            type: 'bar',
+            yAxisIndex: 1,
+            barMaxWidth: 70,
+            data: this.usedDetailData.curSeries.knum
+          },
+          {
+            name: legends[2],
             type: 'line',
-            data: this.usedDetailData.series.grosssale
+            data: this.usedDetailData.comparedSeries.grosssale
           },
           {
-            name: '车流量',
-            type: 'bar',
-            yAxisIndex: 1,
-            data: this.usedDetailData.series.cnum
-          },
-          {
-            name: '客流量',
-            type: 'bar',
-            yAxisIndex: 1,
-            data: this.usedDetailData.series.knum
+            name: legends[3],
+            type: 'line',
+            data: this.usedDetailData.curSeries.grosssale
           }
         ]
+      })
+    },
+    checkMonth (val) {
+      this.$store.commit('getDate', new Date(val))
+      this.$router.push({
+        name: 'monthly'
       })
     }
   }
@@ -441,6 +544,9 @@ export default {
           &:first-child{
             text-align: center;
             font-size:.5rem;
+          }
+          &.line{
+            text-decoration: underline;
           }
         }
         th{
