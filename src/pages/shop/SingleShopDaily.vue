@@ -320,7 +320,6 @@ export default {
           return item
         })
       }
-      console.log(arr)
       return arr
     },
     detaildataechart () {
@@ -501,6 +500,13 @@ export default {
     reset () {
       this.tableData = null
       this.dataset.source['营业额'] = []
+      this.summaries = 0
+      this.areaeffect = 0
+      this.customerprice = 0
+      this.saletarget = 0
+      this.salerate = 0
+      this.saletarget = 0
+      this.area = 0
       this.initEchart()
     },
     listenScroll () {
