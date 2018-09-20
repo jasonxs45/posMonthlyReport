@@ -121,7 +121,7 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in usedTableData" :key="item+'-'+index">
-                <td @click="checkDaily"><div>{{item.month}}</div></td>
+                <td @click="checkDaily(item.month)"><div>{{item.month}}</div></td>
                 <td><div>{{item.grosssales|thousand}}</div></td>
                 <td><div>{{item.effect|thousand}}</div></td>
                 <td><div>{{item.yearlasymonth}}</div></td>
@@ -421,11 +421,12 @@ export default {
       this.dataset.source['营业额'] = []
       this.initEchart()
     },
-    checkDaily () {
+    checkDaily (month) {
       this.$router.push({
         name: 'singleshopdaily',
         query: {
-          id: this.shopid
+          id: this.shopid,
+          month
         }
       })
     }
@@ -450,7 +451,7 @@ export default {
   }
 }
 .inline-select{
-  width: p2r(240);
+  width: p2r(220);
   height:1.4rem;
   background: #fff;
   input{

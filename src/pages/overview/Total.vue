@@ -371,12 +371,12 @@ export default {
           {
             name: legends[0],
             type: 'line',
-            data: this.usedOpenData.curSeries
+            data: this.usedOpenData.comparedSeries
           },
           {
             name: legends[1],
             type: 'line',
-            data: this.usedOpenData.comparedSeries
+            data: this.usedOpenData.curSeries
           }
         ]
       })
@@ -465,7 +465,8 @@ export default {
       })
     },
     checkMonth (val) {
-      this.$store.commit('getDate', new Date(val))
+      let date = new Date(val.replace('/', '-'))
+      this.$store.commit('getDate', new Date(date))
       this.$router.push({
         name: 'monthly'
       })

@@ -103,7 +103,7 @@
             <div class="flexbox-item">
               <div class="flexbox">
                 <div class="statichead">本月营业额：</div>
-                <div class="statics">{{summaries}}</div>
+                <div class="statics">{{summaries|thousand}}</div>
               </div>
             </div>
             <div class="flexbox-item">
@@ -144,7 +144,7 @@
           </div>
         </div>
       </div>
-      <div v-if="tableData" class="fktable" ref="fktable">
+      <div class="fktable" ref="fktable">
         <div class="table-wrapper extra" ref="extraThead" :class="fixThead?'fixed':''">
           <div class="thead">
             <table class="mytable mytable1">
@@ -341,9 +341,14 @@ export default {
     this.shopid = parseInt(this.$route.query.id)
     this.getShopInfo()
     this.selectedMonth = getPrevMonth()
+    this.selectedMonth = this.$route.query.month.replace('/', '-')
     this.selectedStartMonth = this.startMonth
     this.getLocationShopList()
     this.getSingleShopMonthInfo()
+  },
+  mounted () {
+    // console.log(this.$refs)
+    this.listenScroll()
   },
   methods: {
     _getShopInfo () {
@@ -364,14 +369,16 @@ export default {
       })
     },
     _getSingleShopMonthInfo () {
+      this.selectedMonth = formatDate(new Date(this.selectedMonth), 'yyyy-MM')
       let opt = {
         v: 'Get_SingleShop_MonthInfo',
         shopid: this.shopid,
-        month: this.startMonth
+        month: this.selectedMonth
       }
       return api.query(opt)
     },
     getSingleShopMonthInfo () {
+      // this.fixThead = false
       let layerindex = layer.loading('加载中')
       this._getSingleShopMonthInfo().then(res => {
         layer.close(layerindex)
@@ -391,9 +398,11 @@ export default {
             }
           }
           this.tableData = result.DayList
-          if (this.tableData.length > 0) {
-            this.listenScroll()
-          }
+          // if (this.tableData.length > 0) {
+          //   this.listenScroll()
+          // } else {
+          //   this.removeListenScroll()
+          // }
           this.initEchart()
         }
       }).catch(err => {
@@ -510,15 +519,17 @@ export default {
       this.initEchart()
     },
     listenScroll () {
-      this.$nextTick(() => {
-        window.onscroll = () => {
-          if (this.thead.getBoundingClientRect().top <= 0) {
-            this.fixThead = true
-          } else {
-            this.fixThead = false
-          }
+      window.onscroll = () => {
+        if (this.thead.getBoundingClientRect().top <= 0) {
+          this.fixThead = true
+        } else {
+          this.fixThead = false
         }
-      })
+      }
+    },
+    removeListenScroll () {
+      window.onscroll = null
+      this.fixThead = false
     }
   }
 }
@@ -541,7 +552,7 @@ export default {
   }
 }
 .inline-select{
-  width: p2r(240);
+  width: p2r(220);
   height:1.4rem;
   background: #fff;
   input{
