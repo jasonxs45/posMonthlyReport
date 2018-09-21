@@ -339,6 +339,7 @@ export default {
   },
   created () {
     this.shopid = parseInt(this.$route.query.id)
+    this.activeMallIndex = parseInt(this.$route.query.mallIndex)
     this.getShopInfo()
     this.selectedMonth = getPrevMonth()
     this.selectedMonth = this.$route.query.month.replace('/', '-')

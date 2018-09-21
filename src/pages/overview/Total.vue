@@ -384,7 +384,7 @@ export default {
     initDetailDataEchart () {
       let legends = [`${this.comparedYear - 1}客流量`, `${this.comparedYear}客流量`, `${this.comparedYear - 1}营业额`, `${this.comparedYear}营业额`]
       this.detailDataEchart.setOption({
-        color: ['#4472c4', '#dae3f3', '#f8cdab', '#ed7d31'],
+        color: ['#dae3f3', '#4472c4', '#f8cdab', '#ed7d31'],
         grid: {
           top: 40,
           bottom: 80

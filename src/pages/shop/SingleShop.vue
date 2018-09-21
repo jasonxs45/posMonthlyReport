@@ -265,6 +265,7 @@ export default {
   },
   created () {
     this.shopid = parseInt(this.$route.query.id)
+    this.activeMallIndex = parseInt(this.$route.query.mallIndex)
     this.getShopInfo()
     this.selectedMonth = getPrevMonth()
     this.selectedStartMonth = this.startMonth
@@ -426,7 +427,8 @@ export default {
         name: 'singleshopdaily',
         query: {
           id: this.shopid,
-          month
+          month,
+          mallIndex: this.activeMallIndex
         }
       })
     }
@@ -529,7 +531,7 @@ export default {
   }
   .detail-statistics-echart{
     width:100%;
-    height:11rem;
+    height:8rem;
   }
   .fktable{
     margin-left: -.5rem;

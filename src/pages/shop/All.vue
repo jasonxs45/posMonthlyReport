@@ -495,7 +495,8 @@ export default {
       this.$router.push({
         name: 'singleshop',
         query: {
-          id
+          id,
+          mallIndex: this.activeMallIndex
         }
       })
     }
