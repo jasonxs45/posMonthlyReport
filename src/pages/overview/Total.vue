@@ -118,7 +118,7 @@ export default {
           let minDate = new Date(_self.endMonth)
           let year = minDate.getFullYear()
           let month = '01'
-          minDate = new Date(year + '/' + month)
+          minDate = new Date(year + '-' + month)
           return time.getTime() < minDate.getTime() || time.getTime() > new Date(_self.endMonth).getTime()
         }
       }
@@ -149,8 +149,8 @@ export default {
       Object.assign(comparedData, {...this.wholeData[1], Effact: []})
       if (curData.CNum) {
         for (let i = 0; i < curData.Month.length; i++) {
-          let curEffact = curData.GrossSales[i] / curData.OpeningArea[i]
-          let comparedEffact = comparedData.GrossSales[i] / comparedData.OpeningArea[i]
+          let curEffact = 30 * curData.GrossSales[i] / curData.OpeningArea[i]
+          let comparedEffact = 30 * comparedData.GrossSales[i] / comparedData.OpeningArea[i]
           let effactRate = this.handleRate(curEffact, comparedEffact)
           curEffact = formatNumber(curEffact, 0, 1)
           let kNumRate = this.handleRate(curData.KNum[i], comparedData.KNum[i])
