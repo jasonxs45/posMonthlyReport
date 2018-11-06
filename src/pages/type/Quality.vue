@@ -159,7 +159,7 @@ export default {
     },
     getStatistics () {
       let opt = {
-        v: 'Get_OperationEffect_Table',
+        v: 'Get_OperationEffect_Chart',
         month: this.endMonth,
         MallID: this.malls[this.activeMallIndex].mallid,
         compareType: this.compareType[this.activeTypeIndex].typeId
