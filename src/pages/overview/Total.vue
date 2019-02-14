@@ -5,7 +5,10 @@
         <el-date-picker v-model="selectedStartMonth" class="startMonth" type="month" format="yyyy年MM月"
         placeholder="选择开始月" popper-class="datepick-pop"
         clear-icon="none"
-        :clearable=false :editable=false
+        :clearable=false
+        readonly
+        disabled
+        :editable=false
         :picker-options="startPickerOptions"
         @change="totalQueries"></el-date-picker>
         <span class="line">-</span>
@@ -45,7 +48,7 @@
               :key="'item-'+index+Math.random().toString(36).substr(2)"
             >
               <td class="line" @click="checkMonth(item)">{{item}}</td>
-              <td v-html="usedTableData.OpeningRate[index]"></td>
+              <td >{{parseFloat(usedTableData.OpeningRate[index]).toFixed(1)}}</td>
               <td v-html="usedTableData.KNum[index]"></td>
               <td v-html="usedTableData.CNum[index]"></td>
               <td v-html="usedTableData.GrossSales[index]"></td>
@@ -104,8 +107,16 @@ export default {
     startMonth () {
       if (!this.selectedStartMonth) {
         let date = new Date(this.endMonth)
-        let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
-        let half = date.setMonth(dis)
+        let dis = date.getMonth() - 5
+        let half = null
+        if (dis > 0) {
+          half = date.setMonth(dis)
+        } else {
+          dis = 12 + dis
+          let year = date.getFullYear() - 1
+          half = date.setYear(year)
+          half = date.setMonth(dis)
+        }
         return formatDate(new Date(half), 'yyyy-MM')
       } else {
         return formatDate(new Date(this.selectedStartMonth), 'yyyy-MM')
@@ -119,7 +130,6 @@ export default {
           let year = minDate.getFullYear()
           let month = '01'
           minDate = new Date(year + '-' + month)
-          console.log(minDate)
           return time.getTime() < minDate.getTime() || time.getTime() > new Date(_self.endMonth).getTime()
         }
       }
@@ -129,7 +139,8 @@ export default {
       return {
         disabledDate (time) {
           let maxDate = new Date(prevMonth).getTime()
-          return time.getTime() > maxDate
+          let minDate = new Date('2017/01')
+          return time.getTime() < minDate.getTime() || time.getTime() > maxDate
         }
       }
     },
@@ -157,7 +168,8 @@ export default {
           let kNumRate = this.handleRate(curData.KNum[i], comparedData.KNum[i])
           let cNumRate = this.handleRate(curData.CNum[i], comparedData.CNum[i])
           let grossSalesRate = this.handleRate(curData.GrossSales[i], comparedData.GrossSales[i])
-          curData.OpeningRate[i] = (curData.OpeningRate[i] * 100).toFixed(1)
+          curData.OpeningRate[i] = (curData.OpeningRate[i] * 100).toFixed(2)
+          comparedData.OpeningRate[i] = (comparedData.OpeningRate[i] * 100).toFixed(2)
           curData.KNum[i] = formatNumber(curData.KNum[i], 0, 1) + '<br/>' + kNumRate
           curData.CNum[i] = formatNumber(curData.CNum[i], 0, 1) + '<br/>' + cNumRate
           curData.GrossSales[i] = formatNumber(curData.GrossSales[i] / 1000000, 1, 1) + '<br/>' + grossSalesRate
@@ -213,10 +225,18 @@ export default {
       return new Date(this.endMonth).getFullYear()
     },
     comparedStart () {
-      return (this.comparedYear - 1) + this.startMonth.substr(4)
+      let start = new Date(this.startMonth)
+      let m = '00' + [start.getMonth() + 1]
+      start = (start.getFullYear() - 1) + '-' + m.substr(m.length - 2)
+      start = new Date(start)
+      return formatDate(start, 'yyyy-MM')
     },
     comparedEnd () {
-      return (this.comparedYear - 1) + this.endMonth.substr(4)
+      let end = new Date(this.endMonth)
+      let m = '00' + [end.getMonth() + 1]
+      end = (end.getFullYear() - 1) + '-' + m.substr(m.length - 2)
+      end = new Date(end)
+      return formatDate(end, 'yyyy-MM')
     }
   },
   filters: {
@@ -229,30 +249,18 @@ export default {
       this.totalQueries()
     },
     selectedMonth (newVal, oldVal) {
-      let startYear = new Date(this.selectedStartMonth).getFullYear()
-      let startMonth = new Date(this.selectedStartMonth).getMonth() + 1
-      let endYear = new Date(newVal).getFullYear()
-      let endMonth = new Date(newVal).getMonth() + 1
-      if (startYear === endYear) {
-        if (startMonth <= endMonth) {
-          console.log(12)
-        } else {
-          let date = new Date(newVal)
-          let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
-          let half = date.setMonth(dis)
-          this.selectedStartMonth = formatDate(new Date(half), 'yyyy-MM')
-        }
-      } else if (startYear < endYear) {
-        let date = new Date(newVal)
-        let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
-        let half = date.setMonth(dis)
-        this.selectedStartMonth = formatDate(new Date(half), 'yyyy-MM')
+      let date = new Date(this.endMonth)
+      let dis = date.getMonth() - 5
+      let half = null
+      if (dis > 0) {
+        half = date.setMonth(dis)
       } else {
-        let date = new Date(newVal)
-        let dis = date.getMonth() - 5 > 0 ? date.getMonth() - 5 : 0
-        let half = date.setMonth(dis)
-        this.selectedStartMonth = formatDate(new Date(half), 'yyyy-MM')
+        dis = 12 + dis
+        let year = date.getFullYear() - 1
+        half = date.setYear(year)
+        half = date.setMonth(dis)
       }
+      this.selectedStartMonth = new Date(half)
     }
   },
   created () {
@@ -321,20 +329,26 @@ export default {
       return api.query(opt)
     },
     initOpenRateEchart () {
-      let legends = [`${this.comparedYear - 1}`, `${this.comparedYear}`]
+      let legends = [
+        `${this.startMonth.replace('-', '/')}-${this.endMonth.replace('-', '/')}`,
+        `${this.comparedStart.replace('-', '/')}-${this.comparedEnd.replace('-', '/')}`
+      ]
       this.openRateEchart.setOption({
-        color: ['#ffc2c2', '#ff0000'],
+        color: ['#ff0000', '#ffc2c2'],
         grid: {
           top: 40
         },
         tooltip: {
           trigger: 'axis',
           position,
-          formatter (params) {
+          formatter: params => {
             let tit = params[0].axisValue
             let content = ''
+            console.log(this.wholeData)
             for (let i = 0; i < params.length; i++) {
-              content += `${params[i].marker}${params[i].seriesName}：${parseFloat(params[i].value).toFixed(2)}%<br/>`
+              let dataIndex = params[i].dataIndex
+              // console.log(this.wholeData[i].OpeningRate[dataIndex])
+              content += `${params[i].marker}${this.wholeData[i].Month[dataIndex]}：${parseFloat(this.wholeData[i].OpeningRate[dataIndex]).toFixed(2)}%<br/>`
             }
             return `${tit}<br/>${content}`
           }
@@ -372,12 +386,12 @@ export default {
           {
             name: legends[0],
             type: 'line',
-            data: this.usedOpenData.comparedSeries
+            data: this.usedOpenData.curSeries
           },
           {
             name: legends[1],
             type: 'line',
-            data: this.usedOpenData.curSeries
+            data: this.usedOpenData.comparedSeries
           }
         ]
       })
@@ -507,6 +521,7 @@ export default {
         padding-right:5px;
         padding-left:1rem;
         font-size:.45rem;
+        color: #333;
       }
     }
     .endMonth{
