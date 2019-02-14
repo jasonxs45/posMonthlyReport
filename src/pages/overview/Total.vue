@@ -119,6 +119,7 @@ export default {
           let year = minDate.getFullYear()
           let month = '01'
           minDate = new Date(year + '-' + month)
+          console.log(minDate)
           return time.getTime() < minDate.getTime() || time.getTime() > new Date(_self.endMonth).getTime()
         }
       }
@@ -505,7 +506,7 @@ export default {
         line-height:1.4rem;
         padding-right:5px;
         padding-left:1rem;
-        font-size:.5rem;
+        font-size:.45rem;
       }
     }
     .endMonth{

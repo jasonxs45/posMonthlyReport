@@ -172,7 +172,7 @@ export default {
           // 统计图
           let echartdata = JSON.parse(JSON.stringify(tableData))
           this.dataset.source = echartdata
-          Object.values(echartdata).map(item => item.pop())
+          // Object.values(echartdata).map(item => item.pop())
           this.initEchart()
           // 表格
           tableData.Rate = []
