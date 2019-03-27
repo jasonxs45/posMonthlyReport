@@ -208,10 +208,12 @@ export default {
         layer.close(layerindex)
         if (res.data.ErrorCode === 0) {
           let tableData = res.data.Data
+          console.log(tableData)
           // 统计图
           let echartdata = JSON.parse(JSON.stringify(tableData))
           this.dataset.source = echartdata
-          Object.values(echartdata).map(item => item.pop())
+          console.log(this.dataset.source)
+          // Object.values(echartdata).map(item => item.pop())
           this.initEchart()
           // 表格
           tableData.Rate = []
